@@ -42,7 +42,7 @@ export default function Cash() {
         <View style={globalStyles.container}>
             
             <View style={globalStyles.chartContainer}>
-                <Text style={{fontSize:50, color: '#ddd'}}>{CashAmount}</Text>
+                <Text style={{fontSize: 30, color: '#ddd'}}> Current Balance: {CashAmount}</Text>
             </View>
             
         
