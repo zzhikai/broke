@@ -48,3 +48,5 @@ Throughout the application, the user will be able to see fluid graphs to visuali
 2. Allow users to view current and projected returns/losses.
 3. Allow users to visualize their finances by implementing graphs and charts.
 4. Allow users to share their financial data with others (family / financial agents).
+
+#### Testing if Push Works
