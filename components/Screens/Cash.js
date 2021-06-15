@@ -12,19 +12,34 @@ export default function Cash() {
     const [modalVisible, setModalVisible] = useState(false); 
     const [transamt, setTransactionAmount] = useState(0);
     const [CashAmount, setCashSavings] = useState(0);
+    var today = new Date();
+    var date = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
 
     const finDoc = firebase.default.firestore().collection("Cash&Goals").doc(firebase.auth().currentUser.uid);  
+    const userCollection = firebase.default.firestore().collection('Users').doc(firebase.auth().currentUser.uid).collection('Transactions');
     finDoc.onSnapshot((doc) => setCashSavings((doc.get("CashSavings"))))
 
     function makeDeposit() {
-        finDoc.update({"CashSavings" : CashAmount + transamt}).then((result) => setModalVisible(false));
+        finDoc.update({"CashSavings" : CashAmount + transamt}).then((result) => 
+        userCollection.add({
+            TransAccount: "Cash",
+            TransAmount: transamt,
+            TransType: "Deposit",
+            TransDate: date
+        })).then((result) => setModalVisible(false));
     }    
     
     function makeWithdrawal() {
         if (transamt > CashAmount) {
           WithdrawalFailedAlert("Withdrawal Amount cannot exceed Savings")
         } else {
-        finDoc.update({"CashSavings" : CashAmount - transamt}).then((result) => setModalVisible(false));
+        finDoc.update({"CashSavings" : CashAmount - transamt}).then((result) => 
+        userCollection.add({
+            TransAccount: "Cash",
+            TransAmount: transamt,
+            TransType: "Withdrawal",
+            TransDate: date
+        })).then((result) => setModalVisible(false));
         }
     }
 

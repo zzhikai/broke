@@ -7,6 +7,7 @@ import { globalStyles} from '../../globalStyles/globalStyles';
 import FlatButton from '../Buttons/button';
 import {StatusBar} from 'expo-status-bar';
 import { parse } from 'react-native-svg';
+import Cash from '../Screens/Cash';
 
 export default function RegisterTwo({ route, navigation }) {
   const [TargetNetWorth, setTargetNetWorth] = useState(0);
@@ -19,6 +20,15 @@ export default function RegisterTwo({ route, navigation }) {
     .set({
       CashSavings,
       TargetNetWorth
+    }).then(() => {
+      firebase.firestore().collection('Users').doc(firebase.auth().currentUser.uid)
+      .collection('Transactions')
+      .add({
+        TransAccount: "Cash",
+        TransAmount: CashSavings,
+        TransType: "Deposit"
+        
+      })
     })
   }
 
