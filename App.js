@@ -6,11 +6,6 @@ import { createStackNavigator } from '@react-navigation/stack';
 import * as firebase from 'firebase';
 import MyBottomScreen from './routes/materialBottomTab';
 import * as Authentication from "./components/api/auth";
-
-const authStack = createStackNavigator();
-const loggedInStack = createStackNavigator();
-const RootStack = createStackNavigator();
-
 import LandingScreen from './components/AuthScreens/Landing';
 import RegistrationPage from './components/AuthScreens/Register';
 import LoginPage from './components/AuthScreens/Login';
@@ -18,6 +13,21 @@ import RegisterTwo from './components/AuthScreens/RegisterTwo';
 import CashScreen from './components/Screens/Cash';
 import DebtScreen from './components/Screens/Debt';
 import StockScreen from './components/Screens/Stocks';
+import StockTransactionScreen from './components/Screens/StockTransaction';
+
+
+const authStack = createStackNavigator();
+const loggedInStack = createStackNavigator();
+const RootStack = createStackNavigator();
+const stockStack = createStackNavigator();
+
+const stockStackScreen = () => (
+  <stockStack.Navigator>
+    <stockStack.Screen name = "Stock" component= {StockScreen} options ={{headerShown: false}} />
+    <stockStack.Screen name = "StockTransaction" component= {StockTransactionScreen} options ={{headerShown: false}} />
+  </stockStack.Navigator>
+
+)
 
 const authStackScreen = () => (
  <authStack.Navigator initialRouteName = "Landing">
@@ -29,14 +39,15 @@ const authStackScreen = () => (
  </authStack.Navigator>
 )
 // put Home headershown as false, so that it will not appear on the other pages in bottomTabNav bar
+// StockScreen changed to stockStackScreen to allow for nested stack navigator
 const loggedInStackScreen = () => (
  <loggedInStack.Navigator initialRouteName = "Home">
    <loggedInStack.Screen name = "Home" component = {MyBottomScreen} options = {{
      headerTransparent: true,
      headerTintColor: 'white',
      headerShown: false}}/> 
-     
-   <loggedInStack.Screen name = "Stocks" component ={StockScreen} options = {{headerTransparent: true,
+    
+   <loggedInStack.Screen name = "Stocks" component ={stockStackScreen} options = {{headerTransparent: true,
      headerTintColor: 'white',
      headerShown: true}}/> 
    <loggedInStack.Screen name = "Debt" component ={DebtScreen} options = {{headerShown: false}}/>

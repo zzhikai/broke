@@ -50,6 +50,7 @@ export const globalStyles = StyleSheet.create({
         paddingTop: 110,
         height: '62%',
         borderColor: 'white',
+        // borderBottomColor: 'green',
 
     },
 
