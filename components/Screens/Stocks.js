@@ -1,4 +1,4 @@
-import React, {useState, useEffect} from 'react'
+import React, {useState, useEffect,} from 'react'
 import {View, Text, Modal, TextInput, Alert, FlatList} from 'react-native';
 import { screenStyles } from './screenStyles';
 import {globalStyles} from '../../globalStyles/globalStyles';
@@ -11,19 +11,18 @@ import FlatButton from '../Buttons/button';
 import MinusButton from '../Buttons/negativeButton';
 import PlusButton from '../Buttons/positiveButton';
 import * as firebase from 'firebase';
+import { set } from 'react-native-reanimated';
 
 //Stock buttons will have their own button
-export default function Stocks({navigation}) {
+export default function Stocks() {
     
  
   
-  const [modalVisible, setModalVisible] = useState(false); 
-    const [OldPrice, setOldPrice] = useState(0);
-    const [OldNumShares, setOldNumShares] = useState(0);
-    const [AvgPrice, setAvgPrice] = useState(0);
-    //const [NumShares, setNumShares] = useState(0);
-    //const [Ticker, setTicker] = useState('');
-    const [TickerExist, setTickerExist] = useState(false)
+    const [modalVisible, setModalVisible] = useState(false); 
+    const [totalValue, setTotalValue] = useState(0);
+   
+    
+    
 
     const data = [
     
@@ -73,7 +72,7 @@ export default function Stocks({navigation}) {
         return stockNumSharesDoc();
 
     }
-    const updateStockHolding = async (ticker, price, numShares) => {
+    const updateStockHolding = async (ticker) => {
         // await this function to complete
         let checkTicker = await checkTickerExist(ticker);
         if (checkTicker) {
@@ -102,10 +101,10 @@ export default function Stocks({navigation}) {
             // below version used await 
             console.log("Old Price: " + prevPrice)
             console.log("Old num: " + prevHoldings)
-            stockDoc.set({
+            stockDoc.update({
                 "Price" : newPrice,
                 "Shares" : newNumOfShares
-            })
+            }).then(() => setModalVisible(false))
             // need to catch error? if something happen console.log error out 
             /*stockDoc.get().then((doc) => prevPrice = parseInt(doc.data().Price)).then((result) =>
             stockDoc.get().then((doc) => prevHoldings = parseInt(doc.data().Shares))).then((result) => 
@@ -113,7 +112,7 @@ export default function Stocks({navigation}) {
                 console.log("Old Price: " + prevPrice)
                 console.log("Old num: " + prevHoldings)
             });*/
-
+            
         } else {
             // create new stock
             console.log("UPDATE:" + checkTicker)
@@ -123,14 +122,14 @@ export default function Stocks({navigation}) {
             console.log("Price: " + Price)
             console.log("Number: " + NumShares)
 
-            await firebase.firestore().collection("Users")
+           firebase.firestore().collection("Users")
                 .doc(firebase.auth().currentUser.uid)
                 .collection("stocks")
                 .doc(`${ticker}`)
                 .set({
                 Price: Price,
                 Shares: NumShares
-            })
+            }).then(() => setModalVisible(false));
             // check if Price and NumShares have been updated from 0
 
             
@@ -160,6 +159,10 @@ export default function Stocks({navigation}) {
     // build array for the all the ticker to do the api call later
     const [stockList, setStockList] = useState([]);
     
+   
+    
+    
+    
     useEffect(() => {
       const subscriber = firebase.default.firestore()
         .collection('Users').doc(firebase.auth().currentUser.uid).collection('stocks')
@@ -167,56 +170,52 @@ export default function Stocks({navigation}) {
           const stocks = [];
     
           querySnapshot.forEach(documentSnapshot => {
-            stocks.push({
+            getCurrPrice(documentSnapshot.id).then((result) => {
+              stocks.push({
               ...documentSnapshot.data(),
               key: documentSnapshot.id,
-            });
+              currPrice: result,
+              currValue: result * documentSnapshot.data().Shares, 
+              perChange: (((result - documentSnapshot.data().Price) / documentSnapshot.data().Price) * 100).toFixed(2)
+            })
+            console.log(stocks[stocks.length - 1])
+            setTotalValue(totalValue + stocks[stocks.length - 1].currValue);
+            setStockList(stocks);
+          })
+          
           });
           
-          setStockList(stocks);
+          
+          
+          
+          
+          
           
         });
     
-      // Unsubscribe from events when no longer in use
+      
       return () => subscriber();
-    }, []);
+    }, [setModalVisible]);
+ 
+
+   
 
     
-    // stockList.forEach((ticker) => ticker.currPrice = 100)
     
-    // function to calculate percentage profit or loss
-    
-    // function to get stock current price
+  
     const axios = require('axios');
     const params = {
-      access_key: '01c3389e120c2749472cf5cc01a2391b'
+       // access_key: '01c3389e120c2749472cf5cc01a2391b'
+       access_key: '0'
     }
 
-    const getQuote = (ticker) => {
-      
-      const url = `http://api.marketstack.com/v1/eod?access_key=${params.access_key}&symbols=${ticker}`
-      
-      const quote = () => axios.get(url)
-        .then(response => {
-          const apiResponse = response.data;
-          if (Array.isArray(apiResponse['data'])) {
-            //console.log(apiResponse['data'][0]['close'])
-            return apiResponse['data'][0]['close']
-          }
-        }).catch(error => {
-          console.log(error.response.data);
-        });
-        //let price = await quote();
-        //return price;
-      return quote();
-    }
-    
-
+   
     function getCurrPrice(ticker) {
       
+      
       const url = `http://api.marketstack.com/v1/eod?access_key=${params.access_key}&symbols=${ticker}`
       
-      const quote = () => axios.get(url)
+      const quote = async () => axios.get(url)
         .then(response => {
           const apiResponse = response.data;
           if (Array.isArray(apiResponse['data'])) {
@@ -224,76 +223,29 @@ export default function Stocks({navigation}) {
             return apiResponse['data'][0]['close']
           }
         }).catch(error => {
+          return 69;
           console.log(error.response.data);
         });
-        //let price = await quote();
-        //return price;
-        return quote();
-    }
-    
-    const addToStockList = async (ticker) => {
-      let price = await getQuote(ticker);
-      let price1 = await price;
-
-      console.log("Add to stocklist price:" + price)
-      return price1;
-
-    }
-
-    
-    var combined = [];
-  
-    
-
-    // map creates a new array
-    // resolvedValues is array of currPrices
-    Promise.all(stockList.map(item => getCurrPrice(item.key)))
-      .then((result) => {
         
-          for( var i = 0; i < stockList.length; i = i + 1) {
-            
-            // console.log(result[i])
-            stockList[i].currPrice = result[i]
-            combined[i] = stockList[i]
-            console.log(combined[i])
-          }
-          
-          // console.log(item);
-          
-        })
-    
-    /*.then((resolvedValues) => {resolvedValues.forEach((value) => {  }); });*/
-      
-    // merge the two arrays
-    
-    console.log("PROMISE LAND: " + combined[0]);
+        
+        return (quote());
+        
+    }
 
-    // console.log("New stock arr:" + newStockArr[0]);
-    // do i need to await here
-    // stockList.forEach((ticker) => ticker.currPrice = addToStockList(ticker.key))
+   
+
     
-    // stockList.forEach((ticker) => ticker.currPrice = getCurrPrice(ticker.key))
+ 
     
-    /*const perChange = async (ticker, pricePaid) => {
-      let currPrice = await getCurrPrice(ticker);
-      let percent = getPercentageChange(currPrice, pricePaid);
+      
      
-      return percent;
-    }*/
 
-    /*function getPercentageChange(currPrice, pricePaid) {
-      // let currentPrice = getCurrPrice(ticker);
-      
-      return (((currPrice - pricePaid) / pricePaid) * 100 ).toFixed(1);
-      
-      
-    }*/
+ 
+   return (
     
-    // stockList.forEach((ticker) => getCurrPrice(ticker))
-    // console.log("StockList index 0: ");
-    return (
-      
+     
       <View style={globalStyles.container}>
+       <Text style = {{color :'white'}}>{totalValue}</Text>
         <View style={globalStyles.chartContainer}>
 
           <VictoryPie 
@@ -308,9 +260,7 @@ export default function Stocks({navigation}) {
             data = {data}  >
           </VictoryPie>
       </View>
-            {/*lIST keeps rerendering constantly whenever something is being type, due to use effect?
-              Remove reverse
-            */}
+            
       <FlatList
               data={stockList}
               renderItem={({ item }) => ( 
@@ -323,9 +273,7 @@ export default function Stocks({navigation}) {
             )}
             />
       
-       {/*
-      percentage = {perChange(item.key, item.Price)} 
-      } */}
+      
         <StatusBar style = 'light'/>
       <View>
         <Modal 

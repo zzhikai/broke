@@ -7,64 +7,8 @@ export default function stockButton({ticker, num, percentage, currPrice, pricePa
   
 
 
-    const axios = require('axios');
-    const params = {
-      access_key: '01c3389e120c2749472cf5cc01a2391b'
-    }
-    // console.log("Stock Button: " + currPrice)
-    /*function getCurrPrice(ticker) {
-      const url = `http://api.marketstack.com/v1/eod?access_key=${params.access_key}&symbols=${ticker}`
-      
-      const quote = () => axios.get(url)
-        .then(response => {
-          const apiResponse = response.data;
-          if (Array.isArray(apiResponse['data'])) {
-            //console.log(apiResponse['data'][0]['close'])
-            return apiResponse['data'][0]['close']
-          }
-        }).catch(error => {
-          console.log(error.response.data);
-        });
-
-      return quote();
-    }*/
     
-    const getQuote = (ticker) => {
-      
-        const url = `http://api.marketstack.com/v1/eod?access_key=${params.access_key}&symbols=${ticker}`
-        
-        const quote = () => axios.get(url)
-          .then(response => {
-            const apiResponse = response.data;
-            if (Array.isArray(apiResponse['data'])) {
-              //console.log(apiResponse['data'][0]['close'])
-              return apiResponse['data'][0]['close']
-            }
-          }).catch(error => {
-            console.log(error.response.data);
-          });
-        
-        // let price = await quote();
-        // return price;
-        
-        return quote();
-    }
-      
-      
-    const addToStockList = async (ticker) => {
-        let price = await getQuote(ticker);
-        console.log("Add to stocklist price:" + price)
-        return price;
-    }
 
-    const quote = async () => {
-        const price = await getQuote(ticker);
-        return price;
-    }
-    // console.log("quote: " + quote)
-    
-  
-    const cPrice = quote();
   
     
   
@@ -80,7 +24,7 @@ export default function stockButton({ticker, num, percentage, currPrice, pricePa
             //cannot display percentage it seems
             */}
                 <View style={styles.rightColumn}>
-                    <Text style={styles.rightButtonText}>{} </Text>
+                    <Text style={styles.rightButtonText}>{currPrice} </Text>
                     
                     <Text style={styles.percentageText}>{}</Text>
                 </View> 
