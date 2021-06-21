@@ -18,10 +18,17 @@ export default function Home({ navigation }) {
   const [DebtValue, setDebtValue] = useState(0);
   const [Goal, setGoal] = useState(0);
 
-  finDoc.onSnapshot((doc) => setCashSavings(doc.get("CashSavings")))
-  finDoc.onSnapshot((doc) => setGoal(doc.get("TargetNetWorth")))
-  userDoc.onSnapshot((doc) => setName(doc.get("name")))
-
+  //userDoc.onSnapshot((doc) => setCashSavings(doc.get("CashSavings")))
+  //userDoc.onSnapshot((doc) => setGoal(doc.get("TargetNetWorth")))
+  // userDoc.onSnapshot((doc) => setName(doc.get("name")))
+  userDoc.onSnapshot( (doc) => {
+    setCashSavings(doc.get("CashSavings"))
+    setGoal(doc.get("TargetNetWorth"))
+    setName(doc.get("name"))
+    // does not update when theres a change in totalstockvalue
+    // updated with the old version as a result
+    setStockValue(doc.get("TotalStockValue"))
+  })
   const data = [
     {x: "Cash", y: CashSavings},
     {x: "Stock", y: StockValue},
@@ -31,7 +38,7 @@ export default function Home({ navigation }) {
     return (
     <View style={globalStyles.container}>
      <Text style = {globalStyles.welcomeMessage}> Hello {name}!</Text>
-     <Text style = {globalStyles.subMessage}> You've reached {((CashSavings+StockValue)/Goal) * 100}% of your goal</Text>
+     <Text style = {globalStyles.subMessage}> You've reached {(((CashSavings+StockValue)/Goal) * 100).toFixed(2)}% of your goal</Text>
       <View style={globalStyles.chartContainer}>
       
     <VictoryPie 

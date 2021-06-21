@@ -15,9 +15,9 @@ export default function RegisterTwo({ route, navigation }) {
   const {name, email, password} = route.params;
 
   function storeMoney() {
-    firebase.firestore().collection("Cash&Goals")
+    firebase.firestore().collection("Users")
     .doc(firebase.auth().currentUser.uid)
-    .set({
+    .update({
       CashSavings,
       TargetNetWorth
     }).then(() => {
@@ -32,6 +32,8 @@ export default function RegisterTwo({ route, navigation }) {
     })
   }
 
+  
+
   function onSignUp() {
     firebase.default.auth().createUserWithEmailAndPassword(email, password)
     .then((result) => {
@@ -42,6 +44,8 @@ export default function RegisterTwo({ route, navigation }) {
           email
       }) 
       console.log(result)
+      // need to create the stock collection
+
       storeMoney();
       navigation.navigate("Home");
     })

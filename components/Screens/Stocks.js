@@ -19,7 +19,9 @@ export default function Stocks({navigation}) {
 
     const [modalVisible, setModalVisible] = useState(false); 
     const [totalValue, setTotalValue] = useState(0);
-   
+    // totalValue does not reset, hence will keep using previous value whenever we update
+    const userDoc = firebase.default.firestore().collection("Users").doc(firebase.auth().currentUser.uid);
+    const userCollection = firebase.default.firestore().collection('Users').doc(firebase.auth().currentUser.uid).collection('Transactions');
     const data = [
     
         {x: "Apple", y: 100},
@@ -37,7 +39,7 @@ export default function Stocks({navigation}) {
         const stockPriceDoc = () => firebase.default.firestore()
             .collection("Users")
             .doc(firebase.auth().currentUser.uid)
-            .collection("stocks")
+            .collection("Stocks")
             .doc(ticker)
             .get()
             .then(documentSnapshot => { 
@@ -53,7 +55,7 @@ export default function Stocks({navigation}) {
         const stockNumSharesDoc = () => firebase.default.firestore()
             .collection("Users")
             .doc(firebase.auth().currentUser.uid)
-            .collection("stocks")
+            .collection("Stocks")
             .doc(ticker)
             .get()
             .then(documentSnapshot => { 
@@ -89,11 +91,11 @@ export default function Stocks({navigation}) {
             const stockDoc = firebase.default.firestore()
             .collection("Users")
             .doc(firebase.auth().currentUser.uid)
-            .collection("stocks")
+            .collection("Stocks")
             .doc(ticker)
             
             stockDoc.delete()
-            .then(() => setModalVisible(false));
+            .then(() => setModalVisible(false))
             // delete the stock 
          }  else {
            // update it normally
@@ -103,7 +105,7 @@ export default function Stocks({navigation}) {
             const stockDoc = firebase.default.firestore()
                           .collection("Users")
                           .doc(firebase.auth().currentUser.uid)
-                          .collection("stocks")
+                          .collection("Stocks")
                           .doc(ticker)
           
             let newNumOfShares = prevHoldings - NumShares;
@@ -128,6 +130,14 @@ export default function Stocks({navigation}) {
 
     }
 
+    function updateTotalStockValue() {
+      const userDoc = firebase.default.firestore().collection("Users").doc(firebase.auth().currentUser.uid);
+
+      userDoc.update({
+        TotalStockValue: totalValue
+      })
+    }
+
     function TickerFailedAlert(args) {
       Alert.alert(  
           'Transaction Failed',  
@@ -150,7 +160,7 @@ export default function Stocks({navigation}) {
             const stockDoc = firebase.default.firestore()
                           .collection("Users")
                           .doc(firebase.auth().currentUser.uid)
-                          .collection("stocks")
+                          .collection("Stocks")
                           .doc(ticker)
          
             let newNumOfShares = NumShares + prevHoldings;
@@ -190,13 +200,13 @@ export default function Stocks({navigation}) {
             console.log(nameOfCompany);
             firebase.firestore().collection("Users")
                   .doc(firebase.auth().currentUser.uid)
-                  .collection("stocks")
+                  .collection("Stocks")
                   .doc(`${ticker}`)
                   .set({
                   Name: nameOfCompany,
                   Price: Price,
                   Shares: NumShares
-              }).then(() => setModalVisible(false));
+              }).then(() => setModalVisible(false))
               // check if Price and NumShares have been updated from 0
 
           }
@@ -209,7 +219,7 @@ export default function Stocks({navigation}) {
     const checkTickerExist = (ticker) =>  {
         const tickerDocRef = () => firebase.firestore().collection("Users")
             .doc(firebase.auth().currentUser.uid)
-            .collection("stocks")
+            .collection("Stocks")
             .doc(ticker)
             .get().then(documentSnapshot => { 
                 if (documentSnapshot.exists) {
@@ -266,12 +276,12 @@ export default function Stocks({navigation}) {
 
 
     // const [loading, setLoading] = useState(true)
-    
+    // setTotalValue(0);
     useEffect(() => {
-      
+      let stockValue = 0;
       const subscriber = firebase.default.firestore()
         .collection('Users')
-        .doc(firebase.auth().currentUser.uid).collection('stocks')
+        .doc(firebase.auth().currentUser.uid).collection('Stocks')
         // added this to do alphabetical order
         // not working
         //.orderBy('Name', 'asc' )
@@ -281,6 +291,7 @@ export default function Stocks({navigation}) {
           querySnapshot.forEach(documentSnapshot => {
             
             getCurrPrice(documentSnapshot.id).then((result) => {
+              
               stocks.push({
               ...documentSnapshot.data(),
               key: documentSnapshot.id,
@@ -289,14 +300,22 @@ export default function Stocks({navigation}) {
               perChange: (((result - documentSnapshot.data().Price) / documentSnapshot.data().Price) * 100).toFixed(2)
             })
             console.log(stocks[stocks.length - 1].key)
-            setTotalValue(totalValue + stocks[stocks.length - 1].currValue);
-            
+            stockValue = stockValue + stocks[stocks.length - 1].currValue
+            // setTotalValue(totalValue + stocks[stocks.length - 1].currValue);
+            console.log("Curr price result: " + result);
+            setTotalValue(stockValue);
+            console.log(stockValue)
             // setLoading(false)
             })
+            // s
             setStockList(stocks);
+            console.log("Updating Stock value on Home page")
+            
+            updateTotalStockValue()
             
           
           });
+          // update here how many times does it access
           
         })
      
@@ -332,7 +351,7 @@ export default function Stocks({navigation}) {
             return apiResponse['data'][0]['close']
           }
         }).catch(error => {
-          return 69;
+          return 150;
           console.log(error.response.data);
         });
         
@@ -356,7 +375,7 @@ export default function Stocks({navigation}) {
           }
         }).catch(error => {
           // console.log(error.response.data);
-          return 'NA';
+          return 'Apple';
           //return 'Tesla';
           // return 'Disney'
         });

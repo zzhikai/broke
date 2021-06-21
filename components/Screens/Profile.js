@@ -11,14 +11,16 @@ export default function Profile() {
 
   const [modalVisible, setModalVisible] = useState(false); 
   const [newGoal, setNewGoal] = useState(0);
-  const finDoc = firebase.default.firestore().collection("Cash&Goals").doc(firebase.auth().currentUser.uid);
+  const userDoc = firebase.default.firestore().collection("Users").doc(firebase.auth().currentUser.uid);
+  // firebase.default.firestore().collection("Users").doc(firebase.auth().currentUser.uid).collection("Cash&Goals")
+  // .collection("Cash&Goals").doc(firebase.auth().currentUser.uid);
   
   function signOutUser(){
     firebase.default.auth().signOut();
   }
 
   function updateTarget() {
-    finDoc.update({"TargetNetWorth" : newGoal}).then((result) => setModalVisible(false));
+    userDoc.update({"TargetNetWorth" : newGoal}).then((result) => setModalVisible(false));
   }
 
     return (
