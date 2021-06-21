@@ -12,18 +12,14 @@ import MinusButton from '../Buttons/negativeButton';
 import PlusButton from '../Buttons/positiveButton';
 import * as firebase from 'firebase';
 import { set } from 'react-native-reanimated';
+import { isLoading } from 'expo-font';
 
 //Stock buttons will have their own button
-export default function Stocks() {
-    
- 
-  
+export default function Stocks({navigation}) {
+
     const [modalVisible, setModalVisible] = useState(false); 
     const [totalValue, setTotalValue] = useState(0);
    
-    
-    
-
     const data = [
     
         {x: "Apple", y: 100},
@@ -35,12 +31,7 @@ export default function Stocks() {
     const [Price, setPrice] = useState(0);
     const [NumShares, setNumShares] = useState(0);
     const [Ticker, setTicker] = useState('');
-    
 
-    // checkTickerExist
-    // createTicker holdings
-    // add to ticker holdings
-    // remove from ticker holdings / delete
     const getPriceOfTicker = (ticker) => {
         //let price = stockPriceDoc()
         const stockPriceDoc = () => firebase.default.firestore()
@@ -72,6 +63,81 @@ export default function Stocks() {
         return stockNumSharesDoc();
 
     }
+
+
+    // sell/remove stock
+
+    const removeStockHolding = async (ticker) => {
+      
+      let checkTicker = await checkTickerExist(ticker)
+      // if no such ticker in holdings, alert
+
+      //
+
+      if (checkTicker) {
+        /**if number of shares selling > shares owned 
+          * will return an alert, but this will be too late?
+          * bc will setModalVisible(false) and return back to the stock screen?
+          * cause passes a promise and not right await 
+          * fk just like inside updateStockHolding, when ticker does not exist 
+          * you only know after you go back to the stock screen
+          */
+         let prevHoldings = await getNumSharesOfTicker(ticker);
+         if (NumShares > prevHoldings) {
+           TickerFailedAlert("Number of Shares sold more than owned")
+         } else if (NumShares == prevHoldings) {
+            const stockDoc = firebase.default.firestore()
+            .collection("Users")
+            .doc(firebase.auth().currentUser.uid)
+            .collection("stocks")
+            .doc(ticker)
+            
+            stockDoc.delete()
+            .then(() => setModalVisible(false));
+            // delete the stock 
+         }  else {
+           // update it normally
+            let prevPrice = await getPriceOfTicker(ticker);
+            let prevHoldings = await getNumSharesOfTicker(ticker);
+            
+            const stockDoc = firebase.default.firestore()
+                          .collection("Users")
+                          .doc(firebase.auth().currentUser.uid)
+                          .collection("stocks")
+                          .doc(ticker)
+          
+            let newNumOfShares = prevHoldings - NumShares;
+            // we let avg price be fixed, no FIFO or LIFO principle 
+            
+            console.log("Old Price: " + prevPrice)
+            console.log("Old num: " + prevHoldings)
+            stockDoc.update({
+                // "Price" : newPrice,
+                // Price remains the same
+                "Shares" : newNumOfShares
+            }).then(() => setModalVisible(false))
+         }
+      
+      } else {
+        // ticker does not exist in holding
+        // alert no such ticker in holdings, reset textinput 
+        TickerFailedAlert("No Such Stock Owned");
+        
+      }
+
+
+    }
+
+    function TickerFailedAlert(args) {
+      Alert.alert(  
+          'Transaction Failed',  
+           args,
+          [  
+              {text: 'OK', onPress: () => {}},  
+          ]  
+     );     
+  }
+    // under buy/add stock
     const updateStockHolding = async (ticker) => {
         // await this function to complete
         let checkTicker = await checkTickerExist(ticker);
@@ -86,15 +152,7 @@ export default function Stocks() {
                           .doc(firebase.auth().currentUser.uid)
                           .collection("stocks")
                           .doc(ticker)
-            // make a function that returns the number for these info, thn use that to 
-            // use await so that it completes and is assigned to the variable?
-            //stockDoc.get().then((doc) => oldPrice = parseFloat(doc.data('Price'))) 
-            // stockDoc.get().then((doc) => oldNum = parseFloat(doc.data('Shares'))) 
-            
-            // stockDoc.onSnapshot((doc) => oldPrice = parseFloat(doc.get('Price')))
-            //stockDoc.onSnapshot((doc) => oldNum = parseFloat(doc.get('Shares')))
-            
-            
+         
             let newNumOfShares = NumShares + prevHoldings;
             let newPrice = (prevPrice * prevHoldings + Price * NumShares) / newNumOfShares;
             // set instead of update
@@ -106,38 +164,48 @@ export default function Stocks() {
                 "Shares" : newNumOfShares
             }).then(() => setModalVisible(false))
             // need to catch error? if something happen console.log error out 
-            /*stockDoc.get().then((doc) => prevPrice = parseInt(doc.data().Price)).then((result) =>
-            stockDoc.get().then((doc) => prevHoldings = parseInt(doc.data().Shares))).then((result) => 
-            stockDoc.update({"Price": parseInt((prevPrice * prevHoldings + Price * NumShares)/(prevHoldings + NumShares)), "Shares": prevHoldings + NumShares})).then((result) => {     
-                console.log("Old Price: " + prevPrice)
-                console.log("Old num: " + prevHoldings)
-            });*/
+            
             
         } else {
             // create new stock
+            // if stock is legit, need to api call to return the name as well
+            // else have to return that this stock does not exist and return alert and reset
+            
             console.log("UPDATE:" + checkTicker)
             console.log('Create Stock Holding Called')
             
             // await will wait for this to be completed
             console.log("Price: " + Price)
             console.log("Number: " + NumShares)
+            // in the end need to include MIC when we support other exchanges
+           let nameOfCompany = await getName(ticker)
 
-           firebase.firestore().collection("Users")
-                .doc(firebase.auth().currentUser.uid)
-                .collection("stocks")
-                .doc(`${ticker}`)
-                .set({
-                Price: Price,
-                Shares: NumShares
-            }).then(() => setModalVisible(false));
-            // check if Price and NumShares have been updated from 0
+           if (nameOfCompany === 'NA') {
+             // suppose to do alert here
+             TickerFailedAlert("No such ticker supported")
+             // console.log('No such ticker supported')
+             // modalVisible.res
+             // setModalVisible(false);
+           } else {
+            console.log(nameOfCompany);
+            firebase.firestore().collection("Users")
+                  .doc(firebase.auth().currentUser.uid)
+                  .collection("stocks")
+                  .doc(`${ticker}`)
+                  .set({
+                  Name: nameOfCompany,
+                  Price: Price,
+                  Shares: NumShares
+              }).then(() => setModalVisible(false));
+              // check if Price and NumShares have been updated from 0
 
-            
+          }
         }
         // when selling remove etc
  
     }
 
+    // inside firestore
     const checkTickerExist = (ticker) =>  {
         const tickerDocRef = () => firebase.firestore().collection("Users")
             .doc(firebase.auth().currentUser.uid)
@@ -158,17 +226,13 @@ export default function Stocks() {
 
     // build array for the all the ticker to do the api call later
     const [stockList, setStockList] = useState([]);
-    
-   
-    
-    
-    
-    useEffect(() => {
+
+    {/*
+    const getList = async () =>  {
       const subscriber = firebase.default.firestore()
         .collection('Users').doc(firebase.auth().currentUser.uid).collection('stocks')
         .onSnapshot(querySnapshot => {
           const stocks = [];
-    
           querySnapshot.forEach(documentSnapshot => {
             getCurrPrice(documentSnapshot.id).then((result) => {
               stocks.push({
@@ -177,27 +241,69 @@ export default function Stocks() {
               currPrice: result,
               currValue: result * documentSnapshot.data().Shares, 
               perChange: (((result - documentSnapshot.data().Price) / documentSnapshot.data().Price) * 100).toFixed(2)
+              })
             })
-            console.log(stocks[stocks.length - 1])
-            setTotalValue(totalValue + stocks[stocks.length - 1].currValue);
-            setStockList(stocks);
+
+          setStockList(stocks);
           })
+          
+        })
+      return subscriber;
+    }
+   
+    useEffect(() => {
+
+      let mounted = true;
+      getList()
+      .then(() => {
+            if (mounted) {
+              console.log("Inside use effect: " + stockList[0].currPrice)
+              // setStockList(items)
+            }
+            })
+      return () => mounted = false;
+    } , [])*/}
+
+
+    // const [loading, setLoading] = useState(true)
+    
+    useEffect(() => {
+      
+      const subscriber = firebase.default.firestore()
+        .collection('Users')
+        .doc(firebase.auth().currentUser.uid).collection('stocks')
+        // added this to do alphabetical order
+        // not working
+        //.orderBy('Name', 'asc' )
+        .onSnapshot(querySnapshot => {
+          const stocks = [];
+    
+          querySnapshot.forEach(documentSnapshot => {
+            
+            getCurrPrice(documentSnapshot.id).then((result) => {
+              stocks.push({
+              ...documentSnapshot.data(),
+              key: documentSnapshot.id,
+              currPrice: result,
+              currValue: result * documentSnapshot.data().Shares, 
+              perChange: (((result - documentSnapshot.data().Price) / documentSnapshot.data().Price) * 100).toFixed(2)
+            })
+            console.log(stocks[stocks.length - 1].key)
+            setTotalValue(totalValue + stocks[stocks.length - 1].currValue);
+            
+            // setLoading(false)
+            })
+            setStockList(stocks);
+            
           
           });
           
-          
-          
-          
-          
-          
-          
-        });
-    
-      
+        })
+     
       return () => subscriber();
-    }, [setModalVisible]);
- 
-
+    }, [modalVisible]);
+    // modalVisible instead of setmodalVisible?
+    // empty leads to virtualisedlist of length 896
    
 
     
@@ -212,8 +318,11 @@ export default function Stocks() {
    
     function getCurrPrice(ticker) {
       
-      
-      const url = `http://api.marketstack.com/v1/eod?access_key=${params.access_key}&symbols=${ticker}`
+      // Obtain the latest end-of-day data for a given stock symbol. Example: /tickers/AAPL/eod/latest
+      const url = `http://api.marketstack.com/v1/eod/latest?access_key=${params.access_key}&symbols=${ticker}`
+      // output 1 day
+      // `http://api.marketstack.com/v1/eod?access_key=${params.access_key}&symbols=${ticker}`
+      // output 100 day page limit
       
       const quote = async () => axios.get(url)
         .then(response => {
@@ -228,7 +337,32 @@ export default function Stocks() {
         });
         
         
-        return (quote());
+        return quote();
+        
+    }
+    //either return name or catch error and return that this does not exist, NA
+    function getName(ticker) {
+      
+      
+      const url = `http://api.marketstack.com/v1/tickers/${ticker}?access_key=${params.access_key}`
+      
+      const quote = async () => axios.get(url)
+        .then(response => {
+          const apiResponse = response.data;
+          if (Array.isArray(apiResponse['data'])) {
+            return 'NA'
+            //console.log(apiResponse['data'][0]['close'])
+            // return apiResponse['data'][0]['name']
+          }
+        }).catch(error => {
+          // console.log(error.response.data);
+          return 'NA';
+          //return 'Tesla';
+          // return 'Disney'
+        });
+        
+        
+        return quote();
         
     }
 
@@ -260,20 +394,18 @@ export default function Stocks() {
             data = {data}  >
           </VictoryPie>
       </View>
-            
-      <FlatList
-              data={stockList}
-              renderItem={({ item }) => ( 
-                
-                
-
-               <StockButton ticker = {item.key} num = {item.Shares} pricePaid ={item.Price} currPrice= {item.currPrice} />
-
-                  
-            )}
-            />
       
       
+        <FlatList
+            data={stockList}
+            renderItem={({ item }) => ( 
+
+              <StockButton ticker = {item.key} num = {item.Shares} pricePaid ={item.Price} currPrice= {item.currPrice} />
+
+          )}
+          
+        />
+        
         <StatusBar style = 'light'/>
       <View>
         <Modal 
@@ -288,7 +420,7 @@ export default function Stocks() {
                   onChangeText = {(val) => setTicker(val)} />      
              
               <TextInput style={globalStyles.input}
-                  placeholder = "Enter Purchase Price"
+                  placeholder = "Enter Price"
                   onChangeText = {(val) => setPrice((parseInt(val)))}
                   keyboardType = 'numeric'   /> 
               <TextInput style={globalStyles.input}
@@ -298,13 +430,20 @@ export default function Stocks() {
 
               <PlusButton
                   // Buy
-                  onPress = {() => updateStockHolding(Ticker, Price, NumShares) }
-                  text = "Add Stock"  />
+                  onPress = {() => updateStockHolding(Ticker) }
+                  text = "Buy"  />
+
+              <MinusButton
+                  // Sell
+                  onPress = {() => removeStockHolding(Ticker) }
+                  text = "Sell"  />
 
           </View>
         </Modal>
         <FlatButton
                  onPress = {() => setModalVisible(!modalVisible)}
+                 // {() => navigation.navigate('TestFeature')} 
+                 
                  // {() => navigation.navigate('StockTransaction')} 
                  text= "Make Transaction"
             />
@@ -314,12 +453,7 @@ export default function Stocks() {
 
 
     </View>
-    
 
-
-       /* <View style={screenStyles.container}>
-            <Text>Stock Screen</Text>
-        </View>*/
   )}
   
 
