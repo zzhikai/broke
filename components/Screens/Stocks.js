@@ -22,6 +22,8 @@ export default function Stocks({navigation}) {
     // totalValue does not reset, hence will keep using previous value whenever we update
     const userDoc = firebase.default.firestore().collection("Users").doc(firebase.auth().currentUser.uid);
     const userCollection = firebase.default.firestore().collection('Users').doc(firebase.auth().currentUser.uid).collection('Transactions');
+    var today = new Date();
+    var date = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
     const data = [
     
         {x: "Apple", y: 100},
@@ -95,6 +97,14 @@ export default function Stocks({navigation}) {
             .doc(ticker)
             
             stockDoc.delete()
+            // update transaction
+            .then((result) => userCollection.add({
+              TransAccount: "Stock",
+              TransAmount: NumShares * Price,
+              TransType: "Sell",
+              TransDate: date,
+              Ticker: ticker,
+            }))
             .then(() => setModalVisible(false))
             // delete the stock 
          }  else {
@@ -117,7 +127,15 @@ export default function Stocks({navigation}) {
                 // "Price" : newPrice,
                 // Price remains the same
                 "Shares" : newNumOfShares
-            }).then(() => setModalVisible(false))
+            })
+            .then((result) => userCollection.add({
+              TransAccount: "Stock",
+              TransAmount: NumShares * Price,
+              TransType: "Sell",
+              TransDate: date,
+              Ticker: ticker,
+            }))
+            .then(() => setModalVisible(false))
          }
       
       } else {
@@ -172,7 +190,15 @@ export default function Stocks({navigation}) {
             stockDoc.update({
                 "Price" : newPrice,
                 "Shares" : newNumOfShares
-            }).then(() => setModalVisible(false))
+            })
+            .then((result) => userCollection.add({
+              TransAccount: "Stock",
+              TransAmount: NumShares * Price,
+              TransType: "Buy",
+              TransDate: date,
+              Ticker: ticker,
+            }))
+            .then(() => setModalVisible(false))
             // need to catch error? if something happen console.log error out 
             
             
@@ -206,7 +232,15 @@ export default function Stocks({navigation}) {
                   Name: nameOfCompany,
                   Price: Price,
                   Shares: NumShares
-              }).then(() => setModalVisible(false))
+              })
+              .then((result) => userCollection.add({
+                TransAccount: "Stock",
+                TransAmount: NumShares * Price,
+                TransType: "Buy",
+                TransDate: date,
+                Ticker: ticker,
+              }))
+              .then(() => setModalVisible(false))
               // check if Price and NumShares have been updated from 0
 
           }
