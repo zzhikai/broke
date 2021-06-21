@@ -39,7 +39,7 @@ export default function Transactions() {
               data={transactions.reverse()}
               renderItem={({ item }) => (
                
-               <TransactionBubble account = {item.TransAccount} type = {item.TransType} date = {item.TransDate} amount = {item.TransAmount} />
+               <TransactionBubble account = {item.TransAccount} type = {item.TransType} date = {item.TransDate} amount = {item.TransAmount} ticker = {item.Ticker}/>
                   
             )}
             />

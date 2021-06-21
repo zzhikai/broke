@@ -15,12 +15,13 @@ export default function Cash() {
     var today = new Date();
     var date = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
 
+    const userDoc = firebase.default.firestore().collection("Users").doc(firebase.auth().currentUser.uid);
     const finDoc = firebase.default.firestore().collection("Cash&Goals").doc(firebase.auth().currentUser.uid);  
     const userCollection = firebase.default.firestore().collection('Users').doc(firebase.auth().currentUser.uid).collection('Transactions');
-    finDoc.onSnapshot((doc) => setCashSavings((doc.get("CashSavings"))))
+    userDoc.onSnapshot((doc) => setCashSavings((doc.get("CashSavings"))))
 
     function makeDeposit() {
-        finDoc.update({"CashSavings" : CashAmount + transamt}).then((result) => 
+        userDoc.update({"CashSavings" : CashAmount + transamt}).then((result) => 
         userCollection.add({
             TransAccount: "Cash",
             TransAmount: transamt,
@@ -33,7 +34,7 @@ export default function Cash() {
         if (transamt > CashAmount) {
           WithdrawalFailedAlert("Withdrawal Amount cannot exceed Savings")
         } else {
-        finDoc.update({"CashSavings" : CashAmount - transamt}).then((result) => 
+        userDoc.update({"CashSavings" : CashAmount - transamt}).then((result) => 
         userCollection.add({
             TransAccount: "Cash",
             TransAmount: transamt,
