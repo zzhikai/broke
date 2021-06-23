@@ -22,6 +22,7 @@ export default function Stocks({navigation}) {
     // totalValue does not reset, hence will keep using previous value whenever we update
     const userDoc = firebase.default.firestore().collection("Users").doc(firebase.auth().currentUser.uid);
     const userCollection = firebase.default.firestore().collection('Users').doc(firebase.auth().currentUser.uid).collection('Transactions');
+    const stockCollection = firebase.default.firestore().collection("Users").doc(firebase.auth().currentUser.uid).collection("Stocks")
     var today = new Date();
     var date = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
     const data = [
@@ -38,10 +39,7 @@ export default function Stocks({navigation}) {
 
     const getPriceOfTicker = (ticker) => {
         //let price = stockPriceDoc()
-        const stockPriceDoc = () => firebase.default.firestore()
-            .collection("Users")
-            .doc(firebase.auth().currentUser.uid)
-            .collection("Stocks")
+        const stockPriceDoc = () => stockCollection
             .doc(ticker)
             .get()
             .then(documentSnapshot => { 
@@ -54,10 +52,7 @@ export default function Stocks({navigation}) {
 
     const getNumSharesOfTicker = (ticker) => {
         //let num = stockNumSharesDoc()
-        const stockNumSharesDoc = () => firebase.default.firestore()
-            .collection("Users")
-            .doc(firebase.auth().currentUser.uid)
-            .collection("Stocks")
+        const stockNumSharesDoc = () => stockCollection
             .doc(ticker)
             .get()
             .then(documentSnapshot => { 
@@ -74,30 +69,17 @@ export default function Stocks({navigation}) {
     const removeStockHolding = async (ticker) => {
       
       let checkTicker = await checkTickerExist(ticker)
-      // if no such ticker in holdings, alert
-
-      //
-
+    
       if (checkTicker) {
-        /**if number of shares selling > shares owned 
-          * will return an alert, but this will be too late?
-          * bc will setModalVisible(false) and return back to the stock screen?
-          * cause passes a promise and not right await 
-          * fk just like inside updateStockHolding, when ticker does not exist 
-          * you only know after you go back to the stock screen
-          */
+      
          let prevHoldings = await getNumSharesOfTicker(ticker);
          if (NumShares > prevHoldings) {
            TickerFailedAlert("Number of Shares sold more than owned")
          } else if (NumShares == prevHoldings) {
-            const stockDoc = firebase.default.firestore()
-            .collection("Users")
-            .doc(firebase.auth().currentUser.uid)
-            .collection("Stocks")
-            .doc(ticker)
-            
+            const stockDoc = stockCollection.doc(ticker)
+            // delete the stock
             stockDoc.delete()
-            // update transaction
+             
             .then((result) => userCollection.add({
               TransAccount: "Stock",
               TransAmount: NumShares * Price,
@@ -106,23 +88,17 @@ export default function Stocks({navigation}) {
               Ticker: ticker,
             }))
             .then(() => setModalVisible(false))
-            // delete the stock 
+            
          }  else {
            // update it normally
             let prevPrice = await getPriceOfTicker(ticker);
             let prevHoldings = await getNumSharesOfTicker(ticker);
             
-            const stockDoc = firebase.default.firestore()
-                          .collection("Users")
-                          .doc(firebase.auth().currentUser.uid)
-                          .collection("Stocks")
+            const stockDoc = stockCollection
                           .doc(ticker)
           
             let newNumOfShares = prevHoldings - NumShares;
-            // we let avg price be fixed, no FIFO or LIFO principle 
             
-            console.log("Old Price: " + prevPrice)
-            console.log("Old num: " + prevHoldings)
             stockDoc.update({
                 // "Price" : newPrice,
                 // Price remains the same
@@ -139,18 +115,13 @@ export default function Stocks({navigation}) {
          }
       
       } else {
-        // ticker does not exist in holding
-        // alert no such ticker in holdings, reset textinput 
-        TickerFailedAlert("No Such Stock Owned");
-        
+        // ticker does not exist in holding, reset textinput 
+        TickerFailedAlert("No Such Stock Owned"); 
       }
-
 
     }
 
     function updateTotalStockValue() {
-      const userDoc = firebase.default.firestore().collection("Users").doc(firebase.auth().currentUser.uid);
-
       userDoc.update({
         TotalStockValue: totalValue
       })
@@ -175,18 +146,14 @@ export default function Stocks({navigation}) {
             let prevHoldings = await getNumSharesOfTicker(ticker);
             console.log("UPDATE:" + checkTicker)
             console.log("Adding to existing")
-            const stockDoc = firebase.default.firestore()
-                          .collection("Users")
-                          .doc(firebase.auth().currentUser.uid)
-                          .collection("Stocks")
+            const stockDoc = stockCollection
                           .doc(ticker)
          
             let newNumOfShares = NumShares + prevHoldings;
             let newPrice = (prevPrice * prevHoldings + Price * NumShares) / newNumOfShares;
             // set instead of update
             // below version used await 
-            console.log("Old Price: " + prevPrice)
-            console.log("Old num: " + prevHoldings)
+            
             stockDoc.update({
                 "Price" : newPrice,
                 "Shares" : newNumOfShares
@@ -203,10 +170,7 @@ export default function Stocks({navigation}) {
             
             
         } else {
-            // create new stock
-            // if stock is legit, need to api call to return the name as well
-            // else have to return that this stock does not exist and return alert and reset
-            
+           
             console.log("UPDATE:" + checkTicker)
             console.log('Create Stock Holding Called')
             
@@ -219,19 +183,15 @@ export default function Stocks({navigation}) {
            if (nameOfCompany === 'NA') {
              // suppose to do alert here
              TickerFailedAlert("No such ticker supported")
-             // console.log('No such ticker supported')
-             // modalVisible.res
-             // setModalVisible(false);
+           
            } else {
             console.log(nameOfCompany);
-            firebase.firestore().collection("Users")
-                  .doc(firebase.auth().currentUser.uid)
-                  .collection("Stocks")
-                  .doc(`${ticker}`)
-                  .set({
-                  Name: nameOfCompany,
-                  Price: Price,
-                  Shares: NumShares
+            stockCollection
+              .doc(`${ticker}`)
+              .set({
+                Name: nameOfCompany,
+                Price: Price,
+                Shares: NumShares
               })
               .then((result) => userCollection.add({
                 TransAccount: "Stock",
@@ -251,9 +211,7 @@ export default function Stocks({navigation}) {
 
     // inside firestore
     const checkTickerExist = (ticker) =>  {
-        const tickerDocRef = () => firebase.firestore().collection("Users")
-            .doc(firebase.auth().currentUser.uid)
-            .collection("Stocks")
+        const tickerDocRef = () => stockCollection
             .doc(ticker)
             .get().then(documentSnapshot => { 
                 if (documentSnapshot.exists) {
@@ -271,51 +229,10 @@ export default function Stocks({navigation}) {
     // build array for the all the ticker to do the api call later
     const [stockList, setStockList] = useState([]);
 
-    {/*
-    const getList = async () =>  {
-      const subscriber = firebase.default.firestore()
-        .collection('Users').doc(firebase.auth().currentUser.uid).collection('stocks')
-        .onSnapshot(querySnapshot => {
-          const stocks = [];
-          querySnapshot.forEach(documentSnapshot => {
-            getCurrPrice(documentSnapshot.id).then((result) => {
-              stocks.push({
-              ...documentSnapshot.data(),
-              key: documentSnapshot.id,
-              currPrice: result,
-              currValue: result * documentSnapshot.data().Shares, 
-              perChange: (((result - documentSnapshot.data().Price) / documentSnapshot.data().Price) * 100).toFixed(2)
-              })
-            })
-
-          setStockList(stocks);
-          })
-          
-        })
-      return subscriber;
-    }
    
     useEffect(() => {
-
-      let mounted = true;
-      getList()
-      .then(() => {
-            if (mounted) {
-              console.log("Inside use effect: " + stockList[0].currPrice)
-              // setStockList(items)
-            }
-            })
-      return () => mounted = false;
-    } , [])*/}
-
-
-    // const [loading, setLoading] = useState(true)
-    // setTotalValue(0);
-    useEffect(() => {
       let stockValue = 0;
-      const subscriber = firebase.default.firestore()
-        .collection('Users')
-        .doc(firebase.auth().currentUser.uid).collection('Stocks')
+      const subscriber = stockCollection
         // added this to do alphabetical order
         // not working
         //.orderBy('Name', 'asc' )
@@ -337,11 +254,12 @@ export default function Stocks({navigation}) {
             stockValue = stockValue + stocks[stocks.length - 1].currValue
             // setTotalValue(totalValue + stocks[stocks.length - 1].currValue);
             console.log("Curr price result: " + result);
+            // trying to get the totalStockValue
             setTotalValue(stockValue);
             console.log(stockValue)
             // setLoading(false)
             })
-            // s
+            
             setStockList(stocks);
             console.log("Updating Stock value on Home page")
             
@@ -419,14 +337,6 @@ export default function Stocks({navigation}) {
         
     }
 
-   
-
-    
- 
-    
-      
-     
-
  
    return (
     
@@ -469,6 +379,7 @@ export default function Stocks({navigation}) {
           
           <View>
               <TextInput style={globalStyles.input}
+                  autoCapitalize = 'characters'
                   placeholder = "Ticker Symbol"
                   onChangeText = {(val) => setTicker(val)} />      
              

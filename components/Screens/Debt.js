@@ -4,10 +4,11 @@ import { screenStyles } from './screenStyles';
 import {globalStyles} from '../../globalStyles/globalStyles';
 import { StatusBar } from 'expo-status-bar';
 
+
 export default function Debt() {
     return (
         <View style={globalStyles.container}>
-            <Text> Debt Screen </Text>
+            <Text style={{color: 'white', textAlign: 'center', fontSize: 20}}> Future Implementation </Text>
             <StatusBar style = 'light'/>
         </View>
     )
