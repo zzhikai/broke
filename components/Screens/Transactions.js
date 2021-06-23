@@ -32,11 +32,15 @@ export default function Transactions() {
             return () => subscriber();
           }, []);
       
+          
+          
           return (
+            
+            
             <View style = {globalStyles.container}>
             
             <FlatList
-              data={transactions.reverse()}
+              data={transactions}
               renderItem={({ item }) => (
                
                <TransactionBubble account = {item.TransAccount} type = {item.TransType} date = {item.TransDate} amount = {item.TransAmount} ticker = {item.Ticker}/>

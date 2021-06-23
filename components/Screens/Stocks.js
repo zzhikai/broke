@@ -1,18 +1,15 @@
 import React, {useState, useEffect,} from 'react'
 import {View, Text, Modal, TextInput, Alert, FlatList} from 'react-native';
-import { screenStyles } from './screenStyles';
 import {globalStyles} from '../../globalStyles/globalStyles';
-import HomeButton from '../Buttons/homeButton';
 import StockButton from '../Buttons/stockButton';
-import {VictoryChart, VictoryPie} from 'victory-native';
-import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
+import {VictoryPie} from 'victory-native';
+import {widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {StatusBar} from 'expo-status-bar';
 import FlatButton from '../Buttons/button';
 import MinusButton from '../Buttons/negativeButton';
 import PlusButton from '../Buttons/positiveButton';
 import * as firebase from 'firebase';
-import { set } from 'react-native-reanimated';
-import { isLoading } from 'expo-font';
+import { G } from 'react-native-svg';
 
 //Stock buttons will have their own button
 export default function Stocks({navigation}) {
@@ -36,6 +33,7 @@ export default function Stocks({navigation}) {
     const [Price, setPrice] = useState(0);
     const [NumShares, setNumShares] = useState(0);
     const [Ticker, setTicker] = useState('');
+    const [isLoading, setLoading] = useState(true);
 
     const getPriceOfTicker = (ticker) => {
         //let price = stockPriceDoc()
@@ -261,9 +259,10 @@ export default function Stocks({navigation}) {
             })
             
             setStockList(stocks);
+            setLoading(false)
             console.log("Updating Stock value on Home page")
             
-            updateTotalStockValue()
+            
             
           
           });
@@ -272,10 +271,8 @@ export default function Stocks({navigation}) {
         })
      
       return () => subscriber();
-    }, [modalVisible]);
-    // modalVisible instead of setmodalVisible?
-    // empty leads to virtualisedlist of length 896
-   
+    }, []);
+    
 
     
     
@@ -336,8 +333,21 @@ export default function Stocks({navigation}) {
         return quote();
         
     }
-
+   
+   updateTotalStockValue();
  
+   if (isLoading){
+     return(
+      <View style= {globalStyles.container}>
+       <View style = {globalStyles.chartContainer}>
+         <Text style = {{fontSize: 20, color: 'white', flex: 1}}>LOADING</Text>
+       </View>
+      </View> 
+     )
+
+   } else {
+  
+   
    return (
     
      
@@ -370,14 +380,14 @@ export default function Stocks({navigation}) {
         />
         
         <StatusBar style = 'light'/>
-      <View>
+      
         <Modal 
           animationType = "slide"
           visible = {modalVisible}
           style = {globalStyles}
           onRequestClose = {() => setModalVisible(false)}>
           
-          <View>
+          <View style = {globalStyles.container}>
               <TextInput style={globalStyles.input}
                   autoCapitalize = 'characters'
                   placeholder = "Ticker Symbol"
@@ -412,12 +422,13 @@ export default function Stocks({navigation}) {
                  text= "Make Transaction"
             />
 
-      </View>
+      
 
 
 
     </View>
 
   )}
+            }
   
 
