@@ -5,13 +5,6 @@ import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-nativ
 // button for Auth page only, buttons inside will be different
 export default function stockButton({ticker, num, percentage, currPrice, pricePaid}) {
   
-
-
-    
-
-  
-    
-  
   // bc the percentage passed into the text is a function not the actual percentage
     return (
         
@@ -24,7 +17,7 @@ export default function stockButton({ticker, num, percentage, currPrice, pricePa
             //cannot display percentage it seems
             */}
                 <View style={styles.rightColumn}>
-                    <Text style={styles.rightButtonText}>{currPrice} </Text>
+                    <Text style={styles.rightButtonText}>{num} </Text>
                     
                     <Text style={styles.percentageText}>{}</Text>
                 </View> 
