@@ -237,10 +237,12 @@ export default function Stocks({navigation}) {
         //.orderBy('Name', 'asc' )
         .onSnapshot(querySnapshot => {
           const stocks = [];
+
           let stockValue = 0;
-    
+          let count = 0;
+          
           querySnapshot.forEach(documentSnapshot => {
-            
+            console.log(count++);
             getCurrPrice(documentSnapshot.id).then((result) => {
               
               stocks.push({
@@ -430,10 +432,12 @@ export default function Stocks({navigation}) {
         updateStockHolding(ticker).then(() => resetData())
         return;
       
-      } else {
+      } else if (type == 'Sell') {
       // can get to sell stock when no input for price and number
         console.log("Im here! Sell")
         removeStockHolding(ticker).then(() => resetData())
+        return;
+      } else {
         return;
       }
       
@@ -533,7 +537,7 @@ export default function Stocks({navigation}) {
 
               <MinusButton
                   // Sell
-                  onPress = {() => makeTransactionHandle(Ticker, Price, NumShares,'Sell') }
+                  onPress = {() => makeTransactionHandle(data.ticker, data.price, data.number,'Sell') }
                   // {() => removeStockHolding(Ticker) }
                   text = "Sell"  />
 
