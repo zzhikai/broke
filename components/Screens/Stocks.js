@@ -9,7 +9,6 @@ import FlatButton from '../Buttons/button';
 import MinusButton from '../Buttons/negativeButton';
 import PlusButton from '../Buttons/positiveButton';
 import * as firebase from 'firebase';
-import { G } from 'react-native-svg';
 
 //Stock buttons will have their own button
 export default function Stocks({navigation}) {
@@ -22,7 +21,7 @@ export default function Stocks({navigation}) {
     const stockCollection = firebase.default.firestore().collection("Users").doc(firebase.auth().currentUser.uid).collection("Stocks")
     var today = new Date();
     var date = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
-    const data = [
+    const data1 = [
     
         {x: "Apple", y: 100},
         {x: "Tesla", y: 200},
@@ -137,6 +136,7 @@ export default function Stocks({navigation}) {
     // under buy/add stock
     const updateStockHolding = async (ticker) => {
         // await this function to complete
+        // setTotalValue(0);
         let checkTicker = await checkTickerExist(ticker);
         if (checkTicker) {
             // await functions return first to get prevPrice and prevHoldings
@@ -227,15 +227,17 @@ export default function Stocks({navigation}) {
     // build array for the all the ticker to do the api call later
     const [stockList, setStockList] = useState([]);
 
-   
+    
     useEffect(() => {
-      let stockValue = 0;
+      
+      //setTotalValue(0);
       const subscriber = stockCollection
         // added this to do alphabetical order
         // not working
         //.orderBy('Name', 'asc' )
         .onSnapshot(querySnapshot => {
           const stocks = [];
+          let stockValue = 0;
     
           querySnapshot.forEach(documentSnapshot => {
             
@@ -276,7 +278,7 @@ export default function Stocks({navigation}) {
 
     
     
-  
+    
     const axios = require('axios');
     const params = {
        // access_key: '01c3389e120c2749472cf5cc01a2391b'
@@ -334,8 +336,112 @@ export default function Stocks({navigation}) {
         
     }
    
-   updateTotalStockValue();
- 
+  updateTotalStockValue();
+
+   const [data, setData] = useState({
+     ticker:'',
+     price:'',
+     number:'',
+     isValidTextInput: true,
+     isValidPriceInput: true,
+     isValidNumberInput: true,
+
+   })
+
+   const resetData = () => {
+    setData({
+      ticker:'',
+      price:'',
+      number:'',
+      isValidTextInput: true,
+      isValidPriceInput: true,
+      isValidNumberInput: true,
+    })
+
+   }
+
+   const textInputChange = (val) => {
+     if (val.length > 0) {
+       setData({
+         ...data,
+         ticker: val,
+         isValidTextInput: true,
+       })
+     } else {
+       setData({
+          ...data,
+          ticker: val,
+          isValidTextInput: false,
+        })
+       
+     }
+   }
+   // for price and number of shares
+   const numberInputChange = (val) => {
+     // console.log("val == null:" + (val == null))
+     if (parseFloat(val) > 0 && val != null) {
+      setData({
+        ...data,
+        number: val,
+        isValidNumberInput: true,
+      })
+     } else {
+      setData({
+        ...data,
+        number: val,
+        isValidNumberInput: false,
+      })
+     }
+   }
+
+   const priceInputChange = (val) => {
+    if (parseFloat(val) > 0 && val != null) {
+     setData({
+       ...data,
+       price: val,
+       isValidPriceInput: true,
+     })
+    } else {
+     setData({
+       ...data,
+       price: val,
+       isValidPriceInput: false,
+     })
+    }
+  }
+
+   const makeTransactionHandle = (ticker,price, number, type) => {
+    console.log("Im here!")
+    console.log("Negative Price Check:" + price);
+   
+    if (ticker.length === 0)  {
+      Alert.alert("Invalid Input!", 'Ticker field cannot be empty.', 
+                  [{text: 'Okay'}])
+      return;
+      
+    } else if (parseInt(price) < 0 || parseInt(number) < 0 || price.length == 0 || number.length == 0) {
+         // numbers can become an empty string and end up passing
+        Alert.alert("Invalid Input Values!", 'Price and Number field must be more than 0',[{text: 'Okay'}])
+        return;
+    } else {
+
+      if (type == 'Buy') {
+        console.log("Im here!2")
+        updateStockHolding(ticker).then(() => resetData())
+        return;
+      
+      } else {
+      // can get to sell stock when no input for price and number
+        console.log("Im here! Sell")
+        removeStockHolding(ticker).then(() => resetData())
+        return;
+      }
+      
+    }
+  
+
+   }
+
    if (isLoading){
      return(
       <View style= {globalStyles.container}>
@@ -364,7 +470,7 @@ export default function Stocks({navigation}) {
             colorScale = {['#d5ddef','#4c394f','#616063']} 
             innerRadius= {wp('20%')}
             radius={wp('30%')}
-            data = {data}  >
+            data = {data1}  >
           </VictoryPie>
       </View>
       
@@ -385,31 +491,50 @@ export default function Stocks({navigation}) {
           animationType = "slide"
           visible = {modalVisible}
           style = {globalStyles}
-          onRequestClose = {() => setModalVisible(false)}>
+          onRequestClose = {() => (setModalVisible(false), resetData())}>
           
           <View style = {globalStyles.container}>
               <TextInput style={globalStyles.input}
                   autoCapitalize = 'characters'
                   placeholder = "Ticker Symbol"
-                  onChangeText = {(val) => setTicker(val)} />      
-             
+                  onChangeText = {(val) => (textInputChange(val), setTicker(val))}
+                  // onBlur = {(val) =>textInputChange(val)}
+                  
+                  />      
+             {!data.isValidTextInput ? 
+                <View> 
+                  <Text style={{color: 'red', alignSelf:'center'}}>Please enter your ticker</Text>
+                </View> : null}
               <TextInput style={globalStyles.input}
                   placeholder = "Enter Price"
-                  onChangeText = {(val) => setPrice((parseInt(val)))}
+                  onChangeText = {(val) => (priceInputChange(val),setPrice((parseInt(val))))}
                   keyboardType = 'numeric'   /> 
+              {!data.isValidPriceInput ? 
+                <View> 
+                  <Text style={{color: 'red', alignSelf:'center'}}>Please enter valid price</Text>
+                </View> : null}
+
               <TextInput style={globalStyles.input}
                   placeholder = "Number of Shares"
-                  onChangeText = {(val) => setNumShares((parseInt(val)))}
+                  onChangeText = {(val) => (numberInputChange(val),setNumShares((parseInt(val))))}
+                  // onBlur = {(val) => numberInputChange(val)}
                   keyboardType = 'numeric'   /> 
-
+              {!data.isValidNumberInput ? 
+                <View> 
+                  <Text style={{color: 'red', alignSelf:'center'}}>Please enter valid number</Text>
+                </View> : null}
+              
+              
               <PlusButton
                   // Buy
-                  onPress = {() => updateStockHolding(Ticker) }
+                  onPress =  {() => makeTransactionHandle(data.ticker, data.price, data.number, 'Buy') }
+                  // {() => updateStockHolding(Ticker) }
                   text = "Buy"  />
 
               <MinusButton
                   // Sell
-                  onPress = {() => removeStockHolding(Ticker) }
+                  onPress = {() => makeTransactionHandle(Ticker, Price, NumShares,'Sell') }
+                  // {() => removeStockHolding(Ticker) }
                   text = "Sell"  />
 
           </View>
