@@ -17,7 +17,7 @@ export default function stockButton({ticker, num, percentage, currPrice, pricePa
             //cannot display percentage it seems
             */}
                 <View style={styles.rightColumn}>
-                    <Text style={styles.rightButtonText}>{num} </Text>
+                    <Text style={styles.rightButtonText}>{num.toFixed(2)} </Text>
                     
                     <Text style={styles.percentageText}>{}</Text>
                 </View> 

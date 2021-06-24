@@ -9,6 +9,7 @@ import FlatButton from '../Buttons/button';
 import MinusButton from '../Buttons/negativeButton';
 import PlusButton from '../Buttons/positiveButton';
 import * as firebase from 'firebase';
+import { parse } from 'react-native-svg';
 
 //Stock buttons will have their own button
 export default function Stocks({navigation}) {
@@ -120,7 +121,7 @@ export default function Stocks({navigation}) {
 
     function updateTotalStockValue() {
       userDoc.update({
-        TotalStockValue: totalValue
+        TotalStockValue: totalValue.toFixed(2)
       })
     }
 
@@ -142,12 +143,12 @@ export default function Stocks({navigation}) {
             // await functions return first to get prevPrice and prevHoldings
             let prevPrice = await getPriceOfTicker(ticker);
             let prevHoldings = await getNumSharesOfTicker(ticker);
-            console.log("UPDATE:" + checkTicker)
+            // console.log("UPDATE:" + checkTicker)
             console.log("Adding to existing")
             const stockDoc = stockCollection
                           .doc(ticker)
          
-            let newNumOfShares = NumShares + prevHoldings;
+            let newNumOfShares = parseFloat(NumShares) + prevHoldings;
             let newPrice = (prevPrice * prevHoldings + Price * NumShares) / newNumOfShares;
             // set instead of update
             // below version used await 
@@ -169,12 +170,10 @@ export default function Stocks({navigation}) {
             
         } else {
            
-            console.log("UPDATE:" + checkTicker)
+            
             console.log('Create Stock Holding Called')
             
-            // await will wait for this to be completed
-            console.log("Price: " + Price)
-            console.log("Number: " + NumShares)
+            
             // in the end need to include MIC when we support other exchanges
            let nameOfCompany = await getName(ticker)
 
@@ -183,7 +182,7 @@ export default function Stocks({navigation}) {
              TickerFailedAlert("No such ticker supported")
            
            } else {
-            console.log(nameOfCompany);
+            // console.log(nameOfCompany);
             stockCollection
               .doc(`${ticker}`)
               .set({
@@ -213,10 +212,10 @@ export default function Stocks({navigation}) {
             .doc(ticker)
             .get().then(documentSnapshot => { 
                 if (documentSnapshot.exists) {
-                    console.log("1st Output Check: true")
+                    // console.log("1st Output Check: true")
                     return true;
                 } else {
-                    console.log("1st Output Check: false")
+                    // console.log("1st Output Check: false")
                     return false;
                 }
             })    
@@ -239,10 +238,10 @@ export default function Stocks({navigation}) {
           const stocks = [];
 
           let stockValue = 0;
-          let count = 0;
+          
           
           querySnapshot.forEach(documentSnapshot => {
-            console.log(count++);
+            
             getCurrPrice(documentSnapshot.id).then((result) => {
               
               stocks.push({
@@ -252,19 +251,19 @@ export default function Stocks({navigation}) {
               currValue: result * documentSnapshot.data().Shares, 
               perChange: (((result - documentSnapshot.data().Price) / documentSnapshot.data().Price) * 100).toFixed(2)
             })
-            console.log(stocks[stocks.length - 1].key)
+            // console.log(stocks[stocks.length - 1].key)
             stockValue = stockValue + stocks[stocks.length - 1].currValue
-            // setTotalValue(totalValue + stocks[stocks.length - 1].currValue);
-            console.log("Curr price result: " + result);
-            // trying to get the totalStockValue
+         
+            // console.log("Curr price result: " + result); => defaulted to return 150 for calculation
+            
             setTotalValue(stockValue);
-            console.log(stockValue)
+            // console.log(stockValue)
             // setLoading(false)
             })
             
             setStockList(stocks);
             setLoading(false)
-            console.log("Updating Stock value on Home page")
+            //console.log("Updating Stock value on Home page")
             
             
             
@@ -363,16 +362,20 @@ export default function Stocks({navigation}) {
    }
 
    const textInputChange = (val) => {
-     if (val.length > 0) {
+     let value = val.replace(/[- #*;,.<>\{\}\[\]\\\/]/gi, '')
+     
+     console.log("value changed: " + value )
+     if (value.length > 0) {
        setData({
          ...data,
-         ticker: val,
+         ticker: value,
          isValidTextInput: true,
        })
+       setTicker(value)
      } else {
        setData({
           ...data,
-          ticker: val,
+          ticker: value,
           isValidTextInput: false,
         })
        
@@ -381,41 +384,68 @@ export default function Stocks({navigation}) {
    // for price and number of shares
    const numberInputChange = (val) => {
      // console.log("val == null:" + (val == null))
-     if (parseFloat(val) > 0 && val != null) {
+     // omitted the fullstop
+     // does not replace period . 
+     /*console.log(typeof(parseFloat(val)) + " :  " + parseFloat(val));
+     if (typeof(parseFloat(val)) != "number") {
+      Alert.alert("Not a valid number!", [{text: 'Okay'}])
       setData({
         ...data,
-        number: val,
+        isValidNumberInput: false,
+      })
+     }*/
+     // given input is 1.5.5, parsefloat and setdata will make it 1.5
+     let value = parseFloat(val.replace(/[- #*;,<>\{\}\[\]\\\/]/gi, ''))
+
+     console.log("num of shares in decimal: " + value)
+     if (parseFloat(value) > 0 && value != null) {
+      setData({
+        ...data,
+        number: value,
         isValidNumberInput: true,
       })
+      // console.log("Setting NumShare with type: " + typeof(parseFloat(value)) + " data: " + value)
+      setNumShares(value);
      } else {
       setData({
         ...data,
-        number: val,
+        number: value,
         isValidNumberInput: false,
       })
      }
    }
 
    const priceInputChange = (val) => {
-    if (parseFloat(val) > 0 && val != null) {
+     // does not replace period . 
+    let value = parseFloat(val.replace(/[- #*;,<>\{\}\[\]\\\/]/gi, ''))
+     
+    console.log("Price in decimal: " + value)
+    if (parseFloat(value) > 0 && value != null) {
      setData({
        ...data,
-       price: val,
+       price: value,
        isValidPriceInput: true,
      })
+     console.log("Setting Price with type: " + typeof(parseFloat(value)) + " data: " + value + "Float version: " + parseFloat(value))
+     setPrice(value);
     } else {
      setData({
        ...data,
-       price: val,
+       price: value,
        isValidPriceInput: false,
      })
     }
   }
 
    const makeTransactionHandle = (ticker,price, number, type) => {
-    console.log("Im here!")
-    console.log("Negative Price Check:" + price);
-   
+    //console.log("Im here!")
+    //console.log("Negative Price Check:" + price);
+    // console.log("Number String Check:" + number);
+    // let tickerUpdate = ticker.replace(/[- #*;,.<>\{\}\[\]\\\/]/gi, '')
+    //tickerUpdate();
+    // if any of ticker, price, number contains punctuation whole thing shld reset right
+    // 
+    //console.log("ticker remove symbols: " + tickerUpdate)
     if (ticker.length === 0)  {
       Alert.alert("Invalid Input!", 'Ticker field cannot be empty.', 
                   [{text: 'Okay'}])
@@ -501,7 +531,8 @@ export default function Stocks({navigation}) {
               <TextInput style={globalStyles.input}
                   autoCapitalize = 'characters'
                   placeholder = "Ticker Symbol"
-                  onChangeText = {(val) => (textInputChange(val), setTicker(val))}
+                  onChangeText = {(val) => (textInputChange(val))}
+                    // , setTicker(val))}
                   // onBlur = {(val) =>textInputChange(val)}
                   
                   />      
@@ -511,7 +542,8 @@ export default function Stocks({navigation}) {
                 </View> : null}
               <TextInput style={globalStyles.input}
                   placeholder = "Enter Price"
-                  onChangeText = {(val) => (priceInputChange(val),setPrice((parseInt(val))))}
+                  onChangeText = {(val) => (priceInputChange(val))}
+                    // setPrice((parseFloat(val))))}
                   keyboardType = 'numeric'   /> 
               {!data.isValidPriceInput ? 
                 <View> 
@@ -520,7 +552,10 @@ export default function Stocks({navigation}) {
 
               <TextInput style={globalStyles.input}
                   placeholder = "Number of Shares"
-                  onChangeText = {(val) => (numberInputChange(val),setNumShares((parseInt(val))))}
+                  // change made here, use numberINputChange to set State instead
+                  
+                  onChangeText = {(val) => (numberInputChange(val))}
+                    // ,setNumShares((parseFloat(val))))}
                   // onBlur = {(val) => numberInputChange(val)}
                   keyboardType = 'numeric'   /> 
               {!data.isValidNumberInput ? 
