@@ -9,7 +9,8 @@ import FlatButton from '../Buttons/button';
 import MinusButton from '../Buttons/negativeButton';
 import PlusButton from '../Buttons/positiveButton';
 import * as firebase from 'firebase';
-import { G } from 'react-native-svg';
+import * as yup from 'yup';
+import { Formik } from 'formik';
 
 //Stock buttons will have their own button
 export default function Stocks({navigation}) {
@@ -335,7 +336,39 @@ export default function Stocks({navigation}) {
     }
    
    updateTotalStockValue();
- 
+    
+
+  // validation for the modal form
+  
+  
+  const transactionSchema = yup.object({
+    ticker : yup.string()
+      .required("Ticker required")
+      .min(1),
+    price: yup.string()
+      .required()
+      .test('Is price valid', 'Price must be a positive number', (value) => {
+        return parseFloat(value) > 0 && value !== null
+      }),
+    /*price: yup.number()
+      .required("Please input Price of Stock")
+      .positive("Price must be positive"),*/
+    number: yup.string()
+    .required()
+    .test('Is number valid', 'Number must be a positive number', (value) => {
+      return parseFloat(value) > 0 && value !== null
+    }),
+    /*number: yup.number()
+      .required("Please input Number of Stocks")
+      .positive("Number must be positive"),*/
+
+  })
+
+
+
+
+
+
    if (isLoading){
      return(
       <View style= {globalStyles.container}>
@@ -386,22 +419,57 @@ export default function Stocks({navigation}) {
           visible = {modalVisible}
           style = {globalStyles}
           onRequestClose = {() => setModalVisible(false)}>
-          
+        <Formik
+          initialValues={{ ticker: '', price: '', number: ''}}
+          validationSchema={transactionSchema}
+          onSubmit={(values, actions) => {
+            actions.resetForm()
+            // update or sell handled by the 2 functions alrd
+            // have 2 function, so pass in the values to decide which one to use?
+            // for example values = {buy/sell, ticker}
+            //if (values.type = buy) => updateStockHolding
+            // else => removestockHolding
+          }}>
+          { (props) => (
           <View style = {globalStyles.container}>
               <TextInput style={globalStyles.input}
                   autoCapitalize = 'characters'
                   placeholder = "Ticker Symbol"
-                  onChangeText = {(val) => setTicker(val)} />      
-             
+                  onChangeText = {(props.handleChange('ticker'), (val) => setTicker(val))} 
+                  onBlur={props.handleBlur('ticker')}
+                  value={props.values.ticker}
+                  />      
+              <Text style={{fontSize: 10, color: 'red', padding: 5, textAlign: 'center', marginBottom: 10, marginTop: 6}}>
+                  {/*props.touched  keeps track of which input has been touched
+                    only outputs right side(props.error.ticker) 
+                    if both statements evaluate to true*/}
+                  {props.touched.ticker && props.errors.ticker}
+              </Text>
               <TextInput style={globalStyles.input}
                   placeholder = "Enter Price"
-                  onChangeText = {(val) => setPrice((parseInt(val)))}
-                  keyboardType = 'numeric'   /> 
+                  // onChangeText = {(val) => setPrice((parseInt(val)))}
+                  keyboardType = 'numeric'   
+                  onChangeText = {(props.handleChange('price'), (val) => setPrice((parseInt(val))))} 
+                  onBlur={props.handleBlur('price')}
+                  //value={props.values.price}
+                  /> 
+              <Text style={{fontSize: 10, color: 'red', padding: 5, textAlign: 'center'}}>
+              
+              {props.touched.price && props.errors.price}
+              </Text>
               <TextInput style={globalStyles.input}
                   placeholder = "Number of Shares"
-                  onChangeText = {(val) => setNumShares((parseInt(val)))}
-                  keyboardType = 'numeric'   /> 
-
+                  //onChangeText = {(val) => setNumShares((parseInt(val)))}
+                  keyboardType = 'numeric'   
+                  onChangeText = {(props.handleChange('number'), (val) => setNumShares((parseInt(val))))} 
+                  onBlur={props.handleBlur('number')}
+                  // value={props.values.number}
+                  /> 
+              <Text style={{fontSize: 10, color: 'red', padding: 5, textAlign: 'center'}}>
+              
+              {props.touched.number && props.errors.number}
+              </Text>
+              <PlusButton onPress={props.handleSubmit} text="props submit function"/>
               <PlusButton
                   // Buy
                   onPress = {() => updateStockHolding(Ticker) }
@@ -413,6 +481,8 @@ export default function Stocks({navigation}) {
                   text = "Sell"  />
 
           </View>
+          )}
+        </Formik>
         </Modal>
         <FlatButton
                  onPress = {() => setModalVisible(!modalVisible)}
