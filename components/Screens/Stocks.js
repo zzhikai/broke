@@ -176,6 +176,8 @@ export default function Stocks({navigation}) {
             
             // in the end need to include MIC when we support other exchanges
            let nameOfCompany = await getName(ticker)
+           console.log("noc" + (nameOfCompany))
+           console.log("Testing Orhad")
 
            if (nameOfCompany === 'NA') {
              // suppose to do alert here
@@ -284,8 +286,8 @@ export default function Stocks({navigation}) {
     
     const axios = require('axios');
     const params = {
-       // access_key: '01c3389e120c2749472cf5cc01a2391b'
-       access_key: '0'
+      access_key: '34c968023042747b40e1af689bf81751'
+       // access_key: '0'
     }
 
    
@@ -301,7 +303,7 @@ export default function Stocks({navigation}) {
         .then(response => {
           const apiResponse = response.data;
           if (Array.isArray(apiResponse['data'])) {
-            //console.log(apiResponse['data'][0]['close'])
+            console.log(apiResponse['data'][0]['close'])
             return apiResponse['data'][0]['close']
           }
         }).catch(error => {
@@ -321,14 +323,15 @@ export default function Stocks({navigation}) {
       
       const quote = async () => axios.get(url)
         .then(response => {
+          console.log("Then Reached")
           const apiResponse = response.data;
-          if (Array.isArray(apiResponse['data'])) {
-            return 'NA'
-            //console.log(apiResponse['data'][0]['close'])
-            // return apiResponse['data'][0]['name']
-          }
+          console.log(apiResponse);
+          console.log(Array.isArray(apiResponse['data']))
+        
+          return apiResponse['name'];
+          
         }).catch(error => {
-          // console.log(error.response.data);
+          console.log(error);
           return 'Apple';
           //return 'Tesla';
           // return 'Disney'

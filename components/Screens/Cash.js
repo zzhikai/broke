@@ -73,7 +73,7 @@ export default function Cash() {
                         
                         <TextInput style={globalStyles.input}
                             placeholder = "Enter Transaction Amount"
-                            onChangeText = {(val) => setTransactionAmount((parseInt(val)))}
+                            onChangeText = {(val) => setTransactionAmount((parseFloat(val)))}
                             keyboardType = 'numeric'
                             
                         /> 
