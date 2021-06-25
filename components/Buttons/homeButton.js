@@ -50,6 +50,8 @@ const styles = StyleSheet.create({
     fontSize: hp('2%'),
     flex: 2,
     color:'black',
+    alignItems : 'center',
+    textAlign: 'center',
     // fontWeight: 'bold',
     // textTransform: 'uppercase',
     //fontSize: 16,

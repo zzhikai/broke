@@ -1,11 +1,12 @@
 import React, { useState } from 'react'
-import { View, Text} from 'react-native';
+import { View, Text, FlatList} from 'react-native';
 import * as firebase from 'firebase';
 import {VictoryPie} from 'victory-native';
 import HomeButton from '../Buttons/homeButton';
 import {globalStyles} from '../../globalStyles/globalStyles';
 import {widthPercentageToDP as wp} from 'react-native-responsive-screen';
 import {StatusBar} from 'expo-status-bar';
+
 
 export default function Home({ navigation }) {
     
@@ -25,15 +26,16 @@ export default function Home({ navigation }) {
     setCashSavings(doc.get("CashSavings"))
     setGoal(doc.get("TargetNetWorth"))
     setName(doc.get("name"))
-    // does not update when theres a change in totalstockvalue
-    // updated with the old version as a result
     setStockValue(doc.get("TotalStockValue"))
   })
+  
   const data = [
     {x: "Cash", y: CashSavings},
     {x: "Stock", y: StockValue},
    // {x: "Left to Go", y: Goal - CashSavings - StockValue}
   ];
+
+  const button_data = [{name: "Cash", val: CashSavings}, {name: "Stocks" , val : StockValue}];
     
     return (
     <View style={globalStyles.container}>
@@ -56,9 +58,16 @@ export default function Home({ navigation }) {
 
     </VictoryPie>
       </View>
-      <HomeButton text="Cash" onPress = {() => navigation.navigate("Cash")} num = {CashSavings}/>
-      <HomeButton text="Stocks" onPress = {() => navigation.navigate('Stocks')} num = {StockValue}/>
-      <HomeButton text="Debt" onPress = {() => navigation.navigate('Debt')} num = {DebtValue}/>
+      
+      <FlatList
+            data={button_data}
+            renderItem={({ item }) => ( 
+
+              <HomeButton text = {item.name} onPress = {() => navigation.navigate(item.name)} num = {item.val} />
+
+          )}
+          
+        />
 
      <StatusBar style = 'light'/>
     </View>

@@ -46,7 +46,7 @@ export const globalStyles = StyleSheet.create({
         justifyContent:'center',
         paddingTop: hp('5%'),
         // using hp instead bc hp uses the available space instead of the entire screen
-        height: hp('55%'),
+        height: hp('60%'),
         borderColor: 'white',
         // borderBottomColor: 'green',
 
