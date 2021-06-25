@@ -1,11 +1,11 @@
 import React, {useState, useEffect} from 'react'
-import {View, Text, FlatList, InteractionManager} from 'react-native';
+import {View, StyleSheet, Text, FlatList, InteractionManager, SafeAreaView} from 'react-native';
 import { screenStyles } from './screenStyles';
 import {globalStyles} from '../../globalStyles/globalStyles';
 import {StatusBar} from 'expo-status-bar';
 import * as firebase from 'firebase';
 import TransactionBubble from '../Buttons/transactionBubble';
-
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 export default function Transactions() {
 
@@ -37,7 +37,7 @@ export default function Transactions() {
           return (
             
             
-            <View style = {globalStyles.container}>
+            <View style = {styles.transactionContainer}>
             
             <FlatList
               data={transactions}
@@ -47,7 +47,17 @@ export default function Transactions() {
                   
             )}
             />
-
             </View>
+            
           );      
 }
+const styles = StyleSheet.create({ 
+  transactionContainer: {
+    //marginTop: hp('2%'),
+    marginTop: Platform.OS == 'ios' ? 0 : -5,
+    paddingTop: hp('5%'),
+    padding: 15,
+    backgroundColor:'#001039',
+    flex: 1
+  },
+})

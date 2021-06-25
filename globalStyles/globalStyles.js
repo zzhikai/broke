@@ -1,15 +1,14 @@
-import { StyleSheet } from 'react-native';
+import { StyleSheet, Platform } from 'react-native';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 
 export const globalStyles = StyleSheet.create({
     // the page is contained inside this
     container: {
-        // made the stack header transparent
-        paddingTop: 'auto',
-        marginTop: 'auto',
+        //height: hp('100%'),
+        marginTop: Platform.OS == 'ios' ? 0 : -5,
         flex: 1,
+        
         padding: 15,
-        paddingTop: 40,
         backgroundColor:'#001039'
     },
 
@@ -42,13 +41,12 @@ export const globalStyles = StyleSheet.create({
     chartContainer: {
         //flex: 1,
         //flexWrap: 'wrap',
-        position:'relative',
+        // position:'relative',
         alignItems: 'center',
         justifyContent:'center',
-        
-        // width: '0%',
-        paddingTop: 110,
-        height: '62%',
+        paddingTop: hp('5%'),
+        // using hp instead bc hp uses the available space instead of the entire screen
+        height: hp('55%'),
         borderColor: 'white',
         // borderBottomColor: 'green',
 
@@ -75,24 +73,25 @@ export const globalStyles = StyleSheet.create({
          color: 'crimson',
         fontWeight: 'bold',
         marginBottom: 10,
-        marginTop: 'auto',
+        marginTop: 6,
         textAlign: 'center',
   },
 
     welcomeMessage: {
          color: 'white',
-         fontSize: hp('3'),
+         fontSize: hp('3%'),
          position: 'absolute',
-         paddingTop: 69,
+         paddingTop: 40,
          paddingLeft: 10,        
          
   },
 
    subMessage: {
     color: 'white',
-    fontSize: hp('2'),
+    fontSize: hp('2%'),
     position: 'absolute',
-    paddingTop: 100,
+    //margin: 10,
+    paddingTop: 70,
     paddingLeft: 10,  
    }
 });

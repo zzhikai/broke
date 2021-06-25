@@ -121,7 +121,7 @@ export default function Stocks({navigation}) {
 
     function updateTotalStockValue() {
       userDoc.update({
-        TotalStockValue: totalValue.toFixed(2)
+        TotalStockValue: parseFloat(totalValue.toFixed(2))
       })
     }
 
@@ -245,7 +245,9 @@ export default function Stocks({navigation}) {
             getCurrPrice(documentSnapshot.id).then((result) => {
               
               stocks.push({
-              ...documentSnapshot.data(),
+              ...documentSnapshot.data(), // provides the old price and old num Shares
+              // added this to see if can get name out
+              name: documentSnapshot.data().Name,
               key: documentSnapshot.id,
               currPrice: result,
               currValue: result * documentSnapshot.data().Shares, 
@@ -476,23 +478,11 @@ export default function Stocks({navigation}) {
 
    }
 
-   if (isLoading){
-     return(
-      <View style= {globalStyles.container}>
-       <View style = {globalStyles.chartContainer}>
-         <Text style = {{fontSize: 20, color: 'white', flex: 1}}>LOADING</Text>
-       </View>
-      </View> 
-     )
-
-   } else {
-  
-   
    return (
     
      
       <View style={globalStyles.container}>
-       <Text style = {{color :'white'}}>{totalValue}</Text>
+       {/*<Text style = {{color :'white'}}>{totalValue}</Text>*/}
         <View style={globalStyles.chartContainer}>
 
           <VictoryPie 
@@ -513,7 +503,7 @@ export default function Stocks({navigation}) {
             data={stockList}
             renderItem={({ item }) => ( 
 
-              <StockButton ticker = {item.key} num = {item.Shares} pricePaid ={item.Price} currPrice= {item.currPrice} />
+              <StockButton ticker = {item.key} num = {item.Shares} pricePaid ={item.Price} currPrice= {item.currPrice} stockName={item.name} percentage ={item.perChange} />
 
           )}
           
@@ -593,6 +583,6 @@ export default function Stocks({navigation}) {
     </View>
 
   )}
-            }
+            
   
 
