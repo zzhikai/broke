@@ -36,7 +36,7 @@ const styles = StyleSheet.create({
     
     flexDirection: 'row',
     margin: 10,
-    fontSize: hp('5%'),
+    //fontSize: hp('2%'),
     //padding: 5,
     // fontSize: 16,
     color: 'black',
@@ -47,22 +47,23 @@ const styles = StyleSheet.create({
   rightButtonText: {
     // color: 'white',
     //flexBasis: 100,
-    fontSize: hp('5%'),
+    fontSize: hp('2%'),
     flex: 2,
     color:'black',
     // fontWeight: 'bold',
     // textTransform: 'uppercase',
-    fontSize: 16,
+    //fontSize: 16,
   },
 
   buttonText: {
     // color: 'white',
-    flex: 8,
+    flex: 5,
     // flexBasis: 300,
     color:'black',
     // fontWeight: 'bold',
     // textTransform: 'uppercase',
-    fontSize: 16,
+    //fontSize: 16,
+    fontSize: hp('2%'),
     // textAlign: 'center',
   }
 });
