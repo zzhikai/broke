@@ -53,7 +53,70 @@ export default function Cash() {
             ]  
        );     
     }
+
+    const [data, setData] = useState({
+        cash:'',
+        isValidCashInput: true,
+    })
+
+    const resetData = () => {
+        setData({
+            cash:'',
+            isValidCashInput:true,
+        })
+    }
+
+    const cashInputChange = (val) => {
+        // not replacing minus sign
+        let value = parseFloat(val.replace(/[ #*;,<>\{\}\[\]\\\/]/gi, ''))
+   
+        console.log("num of shares in decimal: " + value)
+        if (parseFloat(value) > 0 && value != null) {
+         setData({
+           ...data,
+           cash: value,
+           isValidCashInput: true,
+         })
     
+         setTransactionAmount(value);
+        } else {
+         setData({
+           ...data,
+           number: value,
+           isValidCashInput: false,
+         })
+        }
+      }
+
+      const makeTransactionHandle = (cash, type) => {
+        
+        if (parseInt(cash) < 0 || parseInt(cash) == 0 || cash.length == 0 || cash.length == 0) {
+             // numbers can become an empty string and end up passing
+            Alert.alert("Invalid Input Values!", 'Amount must be more than 0',[{text: 'Okay'}])
+            return;
+        } else {
+    
+          if (type == 'Withdrawal') {
+            console.log("Making Withdrawal :" + cash)
+            makeWithdrawal()
+            resetData();
+
+            return;
+          
+          } else if (type == 'Deposit') {
+          // can get to sell stock when no input for price and number
+            console.log("Making Deposit :" + cash)
+            makeDeposit()
+            resetData();
+            return;
+          } else {
+            return;
+          }
+          
+        }
+      
+    
+       }  
     return (
         <View style={globalStyles.container}>
             
@@ -73,19 +136,25 @@ export default function Cash() {
                         
                         <TextInput style={globalStyles.input}
                             placeholder = "Enter Transaction Amount"
-                            onChangeText = {(val) => setTransactionAmount((parseFloat(val)))}
+                            onChangeText = {(val) => cashInputChange(val)}
+                                // setTransactionAmount((parseFloat(val)))}
                             keyboardType = 'numeric'
                             
                         /> 
+                        {!data.isValidCashInput ? 
+                        <View> 
+                        <Text style={{color: 'red', alignSelf:'center'}}>Please enter valid amount</Text>
+                        </View> : null}
+
                         
                         <PlusButton
-                            onPress = {() => makeDeposit()}
+                            onPress = {() => makeTransactionHandle(data.cash, 'Deposit')}
                             text = "Make Deposit"
                             
                         />
 
                         <MinusButton
-                            onPress = {() => makeWithdrawal()}
+                            onPress = {() => makeTransactionHandle(data.cash, 'Withdrawal')}
                             text = "Make Withdrawal" 
                         />
 
