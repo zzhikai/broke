@@ -9,7 +9,7 @@ import FlatButton from '../Buttons/button';
 import MinusButton from '../Buttons/negativeButton';
 import PlusButton from '../Buttons/positiveButton';
 import * as firebase from 'firebase';
-import { parse } from 'react-native-svg';
+
 
 //Stock buttons will have their own button
 export default function Stocks({navigation}) {
@@ -307,7 +307,7 @@ export default function Stocks({navigation}) {
             return apiResponse['data'][0]['close']
           }
         }).catch(error => {
-          return 150;
+          // return 150;
           console.log(error.response.data);
         });
         
@@ -332,7 +332,8 @@ export default function Stocks({navigation}) {
           
         }).catch(error => {
           console.log(error);
-          return 'Apple';
+          return 'NA'
+          // return 'Apple';
           //return 'Tesla';
           // return 'Disney'
         });
