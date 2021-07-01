@@ -48,7 +48,7 @@ export default function Profile() {
               onRequestClose = {() => setModalVisible(false)}
             >
                <View style = {globalStyles.container}>
-                <Text style={globalStyles.titleText}>Current Balance: {goal}</Text>
+                <Text style={globalStyles.titleText}>Current Goal: {goal}</Text>
                 <TextInput 
                   style={globalStyles.input}
                   placeholder = "Enter New Goal"

@@ -36,7 +36,7 @@ export const globalStyles = StyleSheet.create({
     titleText: {
         fontSize: 18,
         fontWeight: 'bold',
-        color: '#333',
+        color: 'white',
     },
     chartContainer: {
         //flex: 1,

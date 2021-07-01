@@ -29,6 +29,10 @@ export default function Stocks({navigation}) {
         {x: "Nike", y: 300},
         /*{x: "Left to Go", y: Goal - CashSavings - StockValue}*/
       ];
+
+    const stockData = [
+      {x: "Name", y: "price"},
+    ];
     // check if ticker exist\
     const [Price, setPrice] = useState(0);
     const [NumShares, setNumShares] = useState(0);
@@ -245,7 +249,7 @@ export default function Stocks({navigation}) {
           querySnapshot.forEach(documentSnapshot => {
             
             getCurrPrice(documentSnapshot.id).then((result) => {
-              
+              stockData.push({x: documentSnapshot.data().Name, y: result * documentSnapshot.data().Shares})
               stocks.push({
               ...documentSnapshot.data(), // provides the old price and old num Shares
               // added this to see if can get name out
@@ -255,6 +259,8 @@ export default function Stocks({navigation}) {
               currValue: result * documentSnapshot.data().Shares, 
               perChange: (((result - documentSnapshot.data().Price) / documentSnapshot.data().Price) * 100).toFixed(2)
             })
+
+           
             // console.log(stocks[stocks.length - 1].key)
             stockValue = stockValue + stocks[stocks.length - 1].currValue
          
@@ -264,7 +270,7 @@ export default function Stocks({navigation}) {
             // console.log(stockValue)
             // setLoading(false)
             })
-            
+            // console.log("Stock Data Array : "  + stockData[1].x)
             setStockList(stocks);
             setLoading(false)
             //console.log("Updating Stock value on Home page")
@@ -273,10 +279,11 @@ export default function Stocks({navigation}) {
             
           
           });
+          
           // update here how many times does it access
           
         })
-     
+        
       return () => subscriber();
     }, []);
     
