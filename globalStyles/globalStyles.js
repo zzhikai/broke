@@ -82,7 +82,7 @@ export const globalStyles = StyleSheet.create({
          fontSize: hp('3%'),
          position: 'absolute',
          paddingTop: 40,
-         paddingLeft: 10,        
+         paddingLeft: 15,        
          
   },
 
@@ -92,6 +92,6 @@ export const globalStyles = StyleSheet.create({
     position: 'absolute',
     //margin: 10,
     paddingTop: 70,
-    paddingLeft: 10,  
+    paddingLeft: 15,  
    }
 });

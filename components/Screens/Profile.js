@@ -11,10 +11,11 @@ export default function Profile() {
 
   const [modalVisible, setModalVisible] = useState(false); 
   const [newGoal, setNewGoal] = useState(0);
+  const [goal, setGoal] = useState(0);
   const userDoc = firebase.default.firestore().collection("Users").doc(firebase.auth().currentUser.uid);
   // firebase.default.firestore().collection("Users").doc(firebase.auth().currentUser.uid).collection("Cash&Goals")
   // .collection("Cash&Goals").doc(firebase.auth().currentUser.uid);
-  
+  userDoc.onSnapshot((doc) => setGoal(doc.get('TargetNetWorth')))
   function signOutUser(){
     firebase.default.auth().signOut();
   }
@@ -47,7 +48,7 @@ export default function Profile() {
               onRequestClose = {() => setModalVisible(false)}
             >
                <View style = {globalStyles.container}>
-
+                <Text style={globalStyles.titleText}>Current Balance: {goal}</Text>
                 <TextInput 
                   style={globalStyles.input}
                   placeholder = "Enter New Goal"
