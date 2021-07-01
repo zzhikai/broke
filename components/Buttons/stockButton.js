@@ -19,7 +19,7 @@ export default function stockButton({ticker, num, percentage, currPrice, pricePa
             <View style={styles.textInnerContainer}>
             
             <Text style={styles.buttonText}>{ticker}</Text>
-            <Text style={styles.rightButtonText}>{currPrice * num}</Text>
+            <Text style={styles.rightButtonText}>{ (currPrice * num).toFixed(2)}</Text>
             
             </View> 
           

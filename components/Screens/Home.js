@@ -63,7 +63,7 @@ export default function Home({ navigation }) {
             data={button_data}
             renderItem={({ item }) => ( 
 
-              <HomeButton text = {item.name} onPress = {() => navigation.navigate(item.name)} num = {item.val} />
+              <HomeButton text = {item.name} onPress = {() => navigation.navigate(item.name)} num = {item.val.toFixed(2)} />
 
           )}
           

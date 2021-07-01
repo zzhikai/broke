@@ -89,8 +89,8 @@ export default function Cash() {
       }
 
       const makeTransactionHandle = (cash, type) => {
-        
-        if (parseInt(cash) < 0 || parseInt(cash) == 0 || cash.length == 0 || cash.length == 0) {
+        // fix deposit not beinf able to be 0.21231 by parsefloat
+        if (parseFloat(cash) < 0 || parseFloat(cash) == 0 || cash.length == 0 || cash.length == 0) {
              // numbers can become an empty string and end up passing
             Alert.alert("Invalid Input Values!", 'Amount must be more than 0',[{text: 'Okay'}])
             return;
