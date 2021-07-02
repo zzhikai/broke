@@ -12,14 +12,16 @@ import Cash from '../Screens/Cash';
 export default function RegisterTwo({ route, navigation }) {
   const [TargetNetWorth, setTargetNetWorth] = useState(0);
   const [CashSavings, setCashSavings] = useState(0);
+  const [TotalStockValue, setTotalStockValue] = useState(0);
   const {name, email, password} = route.params;
-
+  // const userDoc = firebase.default.firestore().collection("Users").doc(firebase.auth().currentUser.uid);
   function storeMoney() {
     firebase.firestore().collection("Users")
     .doc(firebase.auth().currentUser.uid)
     .update({
       CashSavings,
-      TargetNetWorth
+      TargetNetWorth,
+      TotalStockValue,
     }).then(() => {
       firebase.firestore().collection('Users').doc(firebase.auth().currentUser.uid)
       .collection('Transactions')
