@@ -58,6 +58,7 @@ export default function Cash() {
         cash:'',
         isValidCashInput: true,
     })
+    const [Cash, setCash] = useState('')
 
     const resetData = () => {
         setData({
@@ -92,7 +93,12 @@ export default function Cash() {
         // fix deposit not beinf able to be 0.21231 by parsefloat
         if (parseFloat(cash) < 0 || parseFloat(cash) == 0 || cash.length == 0 || cash.length == 0) {
              // numbers can become an empty string and end up passing
-            Alert.alert("Invalid Input Values!", 'Amount must be more than 0',[{text: 'Okay'}])
+             setCash('')
+             Alert.alert("Invalid Input Values!", 'Amount must be more than 0',[{text: 'Okay'}])
+            
+            //cashRef.clear()
+            
+            // resetData()
             return;
         } else {
     
@@ -100,7 +106,9 @@ export default function Cash() {
             console.log("Making Withdrawal :" + cash)
             makeWithdrawal()
             resetData();
-
+            
+            setCashSavings(0);
+            setCash('')
             return;
           
           } else if (type == 'Deposit') {
@@ -108,6 +116,9 @@ export default function Cash() {
             console.log("Making Deposit :" + cash)
             makeDeposit()
             resetData();
+            
+            setCashSavings(0);
+            setCash('')
             return;
           } else {
             return;
@@ -117,6 +128,7 @@ export default function Cash() {
       
     
        }  
+    const cashRef = React.createRef()
     return (
         <View style={globalStyles.container}>
             
@@ -136,9 +148,16 @@ export default function Cash() {
                         
                         <TextInput style={globalStyles.input}
                             placeholder = "Enter Transaction Amount"
-                            onChangeText = {(val) => cashInputChange(val)}
-                                // setTransactionAmount((parseFloat(val)))}
+                            value = {Cash}
+                            //value = {data.cash}
+                            // onPressOut= {(val) => cashInputChange(val)}
+                            // onEndEditing = {(val) => cashInputChange(val)}
+                            onChangeText = {(val) => (cashInputChange(val), setCash(val))}
+                            //value = {data.cash}
+                                // setT ransactionAmount((parseFloat(val)))}
+                            
                             keyboardType = 'numeric'
+                            ref = {cashRef}
                             
                         /> 
                         {!data.isValidCashInput ? 
@@ -148,13 +167,14 @@ export default function Cash() {
 
                         
                         <PlusButton
-                            onPress = {() => makeTransactionHandle(data.cash, 'Deposit')}
+                            // change data.cash into cash setCash, once completely backspace still got no residual value to add
+                            onPress = {() =>  (makeTransactionHandle(Cash, 'Deposit'))}
                             text = "Make Deposit"
                             
                         />
 
                         <MinusButton
-                            onPress = {() => makeTransactionHandle(data.cash, 'Withdrawal')}
+                            onPress = {() => makeTransactionHandle(Cash, 'Withdrawal')}
                             text = "Make Withdrawal" 
                         />
 

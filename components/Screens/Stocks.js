@@ -336,9 +336,9 @@ export default function Stocks({navigation}) {
    const numberInputChange = (val) => {
      // console.log("val == null:" + (val == null))
      // omitted the fullstop
-     // does not replace period . 
+     // does not replace period . & -
      // given input is 1.5.5, parsefloat and setdata will make it 1.5
-     let value = parseFloat(val.replace(/[- #*;,<>\{\}\[\]\\\/]/gi, ''))
+     let value = parseFloat(val.replace(/[ #*;,<>\{\}\[\]\\\/]/gi, ''))
 
      console.log("num of shares in decimal: " + value)
      if (parseFloat(value) > 0 && value != null) {
@@ -359,8 +359,8 @@ export default function Stocks({navigation}) {
    }
 
    const priceInputChange = (val) => {
-     // does not replace period . 
-    let value = parseFloat(val.replace(/[- #*;,<>\{\}\[\]\\\/]/gi, ''))
+     // does not replace period . & -
+    let value = parseFloat(val.replace(/[ #*;,<>\{\}\[\]\\\/]/gi, ''))
      
     console.log("Price in decimal: " + value)
     if (parseFloat(value) > 0 && value != null) {
@@ -392,23 +392,35 @@ export default function Stocks({navigation}) {
     if (ticker.length === 0)  {
       Alert.alert("Invalid Input!", 'Ticker field cannot be empty.', 
                   [{text: 'Okay'}])
+      setSymbol('')
+      setPx('')
+      setNum('')
       return;
       
-    } else if (parseInt(price) < 0 || parseInt(number) < 0 || price.length == 0 || number.length == 0) {
+    } else if (parseFloat(price) < 0 || parseFloat(number) < 0 || price.length == 0 || number.length == 0) {
          // numbers can become an empty string and end up passing
         Alert.alert("Invalid Input Values!", 'Price and Number field must be more than 0',[{text: 'Okay'}])
+        setSymbol('')
+        setPx('')
+        setNum('')
         return;
     } else {
 
       if (type == 'Buy') {
-        console.log("Im here!2")
+        console.log("Im here! Buy")
         updateStockHolding(ticker).then(() => resetData())
+        setSymbol('')
+        setPx('')
+        setNum('')
         return;
       
       } else if (type == 'Sell') {
       // can get to sell stock when no input for price and number
         console.log("Im here! Sell")
         removeStockHolding(ticker).then(() => resetData())
+        setSymbol('')
+        setPx('')
+        setNum('')
         return;
       } else {
         return;
@@ -418,6 +430,10 @@ export default function Stocks({navigation}) {
   
 
    }
+
+   const [Symbol, setSymbol] = useState('')
+   const [Px, setPx] = useState('')
+   const [Num, setNum] = useState('')
 
    return (
     
@@ -462,7 +478,8 @@ export default function Stocks({navigation}) {
               <TextInput style={globalStyles.input}
                   autoCapitalize = 'characters'
                   placeholder = "Ticker Symbol"
-                  onChangeText = {(val) => (textInputChange(val))}
+                  value = {Symbol}
+                  onChangeText = {(val) => (textInputChange(val), setSymbol(val))}
                     // , setTicker(val))}
                   // onBlur = {(val) =>textInputChange(val)}
                   
@@ -473,7 +490,8 @@ export default function Stocks({navigation}) {
                 </View> : null}
               <TextInput style={globalStyles.input}
                   placeholder = "Enter Price"
-                  onChangeText = {(val) => (priceInputChange(val))}
+                  onChangeText = {(val) => (priceInputChange(val), setPx(val))}
+                  value = {Px}
                     // setPrice((parseFloat(val))))}
                   keyboardType = 'numeric'   /> 
               {!data.isValidPriceInput ? 
@@ -484,8 +502,8 @@ export default function Stocks({navigation}) {
               <TextInput style={globalStyles.input}
                   placeholder = "Number of Shares"
                   // change made here, use numberINputChange to set State instead
-                  
-                  onChangeText = {(val) => (numberInputChange(val))}
+                  value = {Num}
+                  onChangeText = {(val) => (numberInputChange(val), setNum(val))}
                     // ,setNumShares((parseFloat(val))))}
                   // onBlur = {(val) => numberInputChange(val)}
                   keyboardType = 'numeric'   /> 
@@ -497,13 +515,16 @@ export default function Stocks({navigation}) {
               
               <PlusButton
                   // Buy
-                  onPress =  {() => makeTransactionHandle(data.ticker, data.price, data.number, 'Buy') }
+                  onPress =  {() => makeTransactionHandle(Symbol, Px, Num, 'Buy') }
+                  // the below version will allow to input and remove number transaction to cross bc data has the input 
+                  // and did not remove the last output
+                  // onPress =  {() => makeTransactionHandle(data.ticker, data.price, data.number, 'Buy') }
                   // {() => updateStockHolding(Ticker) }
                   text = "Buy"  />
 
               <MinusButton
                   // Sell
-                  onPress = {() => makeTransactionHandle(data.ticker, data.price, data.number,'Sell') }
+                  onPress = {() => makeTransactionHandle(Symbol, Px, Num,'Sell') }
                   // {() => removeStockHolding(Ticker) }
                   text = "Sell"  />
 
