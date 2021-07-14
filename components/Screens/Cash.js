@@ -10,7 +10,7 @@ import * as firebase from 'firebase';
 export default function Cash() {
 
     const [modalVisible, setModalVisible] = useState(false); 
-    const [transamt, setTransactionAmount] = useState(0);
+    const [Transaction, setTransactionAmount] = useState(0);
     const [CashAmount, setCashSavings] = useState(0);
     var today = new Date();
     var date = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
@@ -21,23 +21,23 @@ export default function Cash() {
     userDoc.onSnapshot((doc) => setCashSavings((doc.get("CashSavings"))))
 
     function makeDeposit() {
-        userDoc.update({"CashSavings" : CashAmount + transamt}).then((result) => 
+        userDoc.update({"CashSavings" : CashAmount + Transaction}).then((result) => 
         userCollection.add({
             TransAccount: "Cash",
-            TransAmount: transamt,
+            TransAmount: Transaction,
             TransType: "Deposit",
             TransDate: date
         })).then((result) => setModalVisible(false));
     }    
     
     function makeWithdrawal() {
-        if (transamt > CashAmount) {
+        if (Transaction > CashAmount) {
           WithdrawalFailedAlert("Withdrawal Amount cannot exceed Savings")
         } else {
-        userDoc.update({"CashSavings" : CashAmount - transamt}).then((result) => 
+        userDoc.update({"CashSavings" : CashAmount - Transaction}).then((result) => 
         userCollection.add({
             TransAccount: "Cash",
-            TransAmount: transamt,
+            TransAmount: Transaction,
             TransType: "Withdrawal",
             TransDate: date
         })).then((result) => setModalVisible(false));
