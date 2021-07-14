@@ -13,6 +13,7 @@ export default function RegisterTwo({ route, navigation }) {
   const [TargetNetWorth, setTargetNetWorth] = useState(0);
   const [CashSavings, setCashSavings] = useState(0);
   const [TotalStockValue, setTotalStockValue] = useState(0);
+  const [Debt, setDebt] = useState(0);
   const {name, email, password} = route.params;
   // const userDoc = firebase.default.firestore().collection("Users").doc(firebase.auth().currentUser.uid);
   function storeMoney() {
@@ -22,6 +23,8 @@ export default function RegisterTwo({ route, navigation }) {
       CashSavings,
       TargetNetWorth,
       TotalStockValue,
+      Debt,
+      // test debt 
     }).then(() => {
       firebase.firestore().collection('Users').doc(firebase.auth().currentUser.uid)
       .collection('Transactions')

@@ -27,6 +27,7 @@ export default function Home({ navigation }) {
     setGoal(doc.get("TargetNetWorth"))
     setName(doc.get("name"))
     setStockValue(doc.get("TotalStockValue"))
+    setDebtValue(doc.get("Debt"))
   })
   
   const data = [
@@ -35,12 +36,12 @@ export default function Home({ navigation }) {
    // {x: "Left to Go", y: Goal - CashSavings - StockValue}
   ];
 
-  const button_data = [{name: "Cash", val: CashSavings}, {name: "Stocks" , val : StockValue}];
+  const button_data = [{name: "Cash", val: CashSavings}, {name: "Stocks" , val : StockValue}, {name: "Debt", val: DebtValue} ];
     
     return (
     <View style={globalStyles.container}>
      <Text style = {globalStyles.welcomeMessage}> Hello {name}!</Text>
-     <Text style = {globalStyles.subMessage}> You've reached {(((CashSavings+StockValue)/Goal) * 100).toFixed(2)}% of your goal</Text>
+     <Text style = {globalStyles.subMessage}> You've reached {(((CashSavings+StockValue - DebtValue)/Goal) * 100).toFixed(2)}% of your goal</Text>
       <View style={globalStyles.chartContainer}>
       
     <VictoryPie 
@@ -49,7 +50,7 @@ export default function Home({ navigation }) {
           fill: 'white'
         }
       }}
-      colorScale = {['green','red','blue']} 
+      colorScale = {['#7C8577','#FFF8DC', '#cde6c7']} 
       // innerRadius = {90} 
       // radius={145}
       innerRadius= {wp('20%')}
@@ -62,7 +63,8 @@ export default function Home({ navigation }) {
       <FlatList
             data={button_data}
             renderItem={({ item }) => ( 
-
+              // error inside item.val.tofixed(2) bc when first open stock amount is null, no number attached to it 
+              // resulting in type error
               <HomeButton text = {item.name} onPress = {() => navigation.navigate(item.name)} num = {item.val.toFixed(2)} />
 
           )}
