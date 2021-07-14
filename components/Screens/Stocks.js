@@ -397,7 +397,7 @@ export default function Stocks({navigation}) {
       setNum('')
       return;
       
-    } else if (parseFloat(price) < 0 || parseFloat(number) < 0 || price.length == 0 || number.length == 0) {
+    } else if (parseFloat(price) <= 0 || parseFloat(number) <= 0 || price.length == 0 || number.length == 0) {
          // numbers can become an empty string and end up passing
         Alert.alert("Invalid Input Values!", 'Price and Number field must be more than 0',[{text: 'Okay'}])
         setSymbol('')
