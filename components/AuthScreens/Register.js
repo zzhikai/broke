@@ -11,7 +11,34 @@ export default function Register({ navigation }) {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [TargetNetWorth, setTargetNetWorth] = useState(0);
+  const [CashSavings, setCashSavings] = useState(0);
+  const [TotalStockValue, setTotalStockValue] = useState(0);
+  const [Debt, setDebt] = useState(0);
+  // const {name, email, password} = route.params;
   
+
+function storeMoney() {
+   firebase.firestore().collection("Users")
+   .doc(firebase.auth().currentUser.uid)
+   .update({
+     CashSavings,
+     TargetNetWorth,
+     TotalStockValue,
+     Debt,
+     // test debt 
+   }).then(() => {
+     firebase.firestore().collection('Users').doc(firebase.auth().currentUser.uid)
+     .collection('Transactions')
+     .add({
+       TransAccount: "Cash",
+       TransAmount: CashSavings,
+       TransType: "Deposit"
+       
+     })
+   })
+ }
+
 function onSignUp() {
    firebase.default.auth().createUserWithEmailAndPassword(email, password)
    .then((result) => {
@@ -22,7 +49,10 @@ function onSignUp() {
          email
      }) 
      console.log(result)
-     navigation.navigate("RegisterTwo");
+     storeMoney();
+     
+     navigation.navigate("Home")
+     // navigation.navigate("RegisterTwo");
    })
    .catch((error) => {
        console.log(error)
@@ -59,8 +89,11 @@ function loginFailedAlert(args) {
                   onChangeText = {setPassword}
                /> 
                <FlatButton
-                 onPress = {() => navigation.navigate("RegisterTwo", {name: name, email: email, password: password})}
-                 text= "Next"
+                 
+                 onPress = {() => {onSignUp()}}
+                 text="Sign Up"
+                 // onPress = {() => navigation.navigate("RegisterTwo", {name: name, email: email, password: password})}
+                 // text= "Next"
                />
                <StatusBar style = 'light'/>
             </View>
