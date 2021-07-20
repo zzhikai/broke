@@ -1,5 +1,5 @@
 import React, {useState, useEffect,} from 'react'
-import {View, Text, Modal, TextInput, Alert, FlatList} from 'react-native';
+import {View, Text, Modal, TextInput, Alert, FlatList, StyleSheet} from 'react-native';
 import {globalStyles} from '../../globalStyles/globalStyles';
 import StockButton from '../Buttons/stockButton';
 import {VictoryLabel, VictoryPie} from 'victory-native';
@@ -23,6 +23,7 @@ export default function Stocks({navigation}) {
     // totalValue does not reset, hence will keep using previous value whenever we update
     const [totalPerChange, setTotalPerChange] = useState(0);
     // this will be total percentage change of the stock portfolio
+    const [totalSpent, setTotalSpent] = useState(0);
     const userDoc = firebase.default.firestore().collection("Users").doc(firebase.auth().currentUser.uid);
     const userCollection = firebase.default.firestore().collection('Users').doc(firebase.auth().currentUser.uid).collection('Transactions');
     const stockCollection = firebase.default.firestore().collection("Users").doc(firebase.auth().currentUser.uid).collection("Stocks")
@@ -259,12 +260,13 @@ export default function Stocks({navigation}) {
           const stocks = [];
 
           let stockValue = 0;
-          
+          let totalSpent = 0;
           
           querySnapshot.forEach(documentSnapshot => {
             
             getCurrentPrice(documentSnapshot.id).then((result) => {
-              stockData.push({x: documentSnapshot.data().Name, y: result * documentSnapshot.data().Shares})
+              // is stockData still neccessary
+              // stockData.push({x: documentSnapshot.data().Name, y: result * documentSnapshot.data().Shares})
               stocks.push({
               ...documentSnapshot.data(), 
               // provides the old price and old num Shares
@@ -273,13 +275,15 @@ export default function Stocks({navigation}) {
               key: documentSnapshot.id,
               currPrice: result,
               currValue: result * documentSnapshot.data().Shares, 
+              amtSpent: documentSnapshot.data().Price * documentSnapshot.data().Shares,
               perChange: (((result - documentSnapshot.data().Price) / documentSnapshot.data().Price) * 100).toFixed(2)
             })
-            
+            totalSpent = totalSpent + stocks[stocks.length - 1].amtSpent
             stockValue = stockValue + stocks[stocks.length - 1].currValue
             // updates totalStock value in field 
             setTotalValue(stockValue);
-         
+            setTotalSpent(totalSpent);
+            // (totalValue - totalSpent) / totalSpent * 100% 
             })
             // stockList will have the full list of stock which will be passed into the flatlist,
             // need to use this same stock list as our pie chart right
@@ -393,7 +397,7 @@ export default function Stocks({navigation}) {
       })
      }
    }
-
+   const arrowSymbol = x => (x > 0 ? '▲' : '▼')
    const priceInputChange = (val) => {
      // does not replace period . & -
     let value = parseFloat(val.replace(/[ #*;,<>\{\}\[\]\\\/]/gi, ''))
@@ -470,7 +474,10 @@ export default function Stocks({navigation}) {
    const [Symbol, setSymbol] = useState('')
    const [Px, setPx] = useState('')
    const [Num, setNum] = useState('')
-
+   const positiveOrNegative = (percentageChange) => 
+   (percentageChange > 0 
+       ? styles.positive
+       : styles.negative)
 
    return (
     
@@ -499,8 +506,8 @@ export default function Stocks({navigation}) {
           <VictoryLabel
             textAnchor= "middle"
             x = {wp('50%')} y ={hp('25%')}
-            style= {{ color: 'white', fill: 'white', fontSize: 20 }}
-          text= {totalValue.toFixed(2)}/>
+            style= {[{ color: 'white', fill: (totalValue - totalSpent) > 0 ? '#03C04A' : 'red', fontSize: 20 }]}
+          text= { ((totalValue - totalSpent) / totalSpent * 100).toFixed(2) + '%' +  arrowSymbol((totalValue - totalSpent))}/>
           </Svg>  
       </View>
       
@@ -595,5 +602,72 @@ export default function Stocks({navigation}) {
 
   )}
             
+  const styles = StyleSheet.create({
+    button: {
+      height: hp('8%'),
+      margin: 8,
+      borderRadius: 8,
+      alignItems: 'center',
+      backgroundColor:'white',
+      justifyContent: 'center',
+    },
+    
+    buttonRowText: {
+      flexDirection: 'row',
+      margin: 10,
+      //fontSize: hp('5%'),
+      color: 'black',
+      alignItems: 'center'
+    },
+  
+    rightButtonText: {
+      // put inside textContainer?
+      fontSize: hp('2%'),
+      flex: 2,
+      alignItems: 'center',
+      textAlign: 'center',
+      color:'black',
+  
+    },
+  
+    belowRightButtonText: {
+      // put inside belowTextcontainer
+      fontSize: hp('1.5%'),
+      flex: 2,
+      alignItems: 'center',
+      textAlign: 'center',
+      
+    },
+  
+    buttonText: {
+      // color: 'white',
+      flex: 5,
+      // flexBasis: 300,
+      
+      color:'black',
+      marginLeft: 10,
+      fontSize: hp('2%'),
+      alignContent: 'center',
+      // textAlign: 'center',
+    },
+    belowButtonText: {
+      flex: 5,
+      color:'black',
+      marginLeft: 10,
+      fontSize: hp('1.5%'),
+      alignContent: 'center',
+      color:'#7E7E7E',
+      //color:'#616161',
+    },
+    // need to form a bottom textas well
+  
+    positive: {
+      color: '#03C04A',
+    },
+    negative: {
+      color: 'red'
+    }
+  
+  });
   
 
