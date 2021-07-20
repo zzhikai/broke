@@ -29,6 +29,19 @@ export default function Stocks({navigation}) {
     var today = new Date();
     var date = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
     // insert new
+    const data1 = [
+    
+        {x: "Apple", y: 100},
+        {x: "Tesla", y: 200},
+        {x: "Nike", y: 300},
+        /*{x: "Left to Go", y: Goal - CashSavings - StockValue}*/
+      ];
+
+    const stockData = [
+      {x: "Name", y: "price"},
+    ];
+
+
     // check if ticker exist\
     const [Price, setPrice] = useState(0);
     const [NumShares, setNumShares] = useState(0);
@@ -268,7 +281,18 @@ export default function Stocks({navigation}) {
             setTotalValue(stockValue);
          
             })
+            // stockList will have the full list of stock which will be passed into the flatlist,
+            // need to use this same stock list as our pie chart right
+            // using name and currValue
+            // update it after stockList has been updated
+            //pieChartArray =[];
+            // make the pieChartArray empty everytime we update? else will keep pushing new duplicate values inside
+            // not sure it need this but LOL
             setStockList(stocks);
+            //setTotalValue(stockValue);
+            // updateTotalStockValue();
+            //console.log("Stock list is:"  + stockList)
+            setLoading(false)
 
           });
 
