@@ -45,13 +45,24 @@ export const globalStyles = StyleSheet.create({
         alignItems: 'center',
         justifyContent:'center',
         paddingTop: hp('5%'),
+       
         // using hp instead bc hp uses the available space instead of the entire screen
-        height: hp('60%'),
+        //height: hp('60%'),
         borderColor: 'white',
         // borderBottomColor: 'green',
 
     },
 
+    pieChartContainer: {
+        alignItems: 'center',
+        justifyContent:'center',
+        // using hp instead bc hp uses the available space instead of the entire screen
+        height: hp('60%'),
+        borderColor: 'white',
+        marginBottom: -hp('10%'),
+        // put this bc dk why the margin bottom increased when svg added
+        // borderBottomColor: 'green',
+    },
     paragraph: {
         marginVertical: 8,
         lineHeight: 20,

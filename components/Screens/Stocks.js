@@ -2,8 +2,9 @@ import React, {useState, useEffect,} from 'react'
 import {View, Text, Modal, TextInput, Alert, FlatList} from 'react-native';
 import {globalStyles} from '../../globalStyles/globalStyles';
 import StockButton from '../Buttons/stockButton';
-import {VictoryPie} from 'victory-native';
-import {widthPercentageToDP as wp} from 'react-native-responsive-screen';
+import {VictoryLabel, VictoryPie} from 'victory-native';
+import Svg from 'react-native-svg';
+import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
 import {StatusBar} from 'expo-status-bar';
 import FlatButton from '../Buttons/button';
 import MinusButton from '../Buttons/negativeButton';
@@ -12,18 +13,22 @@ import getCompanyName from '../StockAPIFunctions/getCompanyName';
 import getCurrentPrice from '../StockAPIFunctions/getCurrentPrice';
 import * as firebase from 'firebase';
 
-
+const colorPaletteOne = [ '#AC8181','#CFCECA','#F8F8FF','#C9A959', '#253D5B']
 //Stock buttons will have their own button
 export default function Stocks({navigation}) {
 
     const [modalVisible, setModalVisible] = useState(false); 
+    // this is total stock value
     const [totalValue, setTotalValue] = useState(0);
     // totalValue does not reset, hence will keep using previous value whenever we update
+    const [totalPerChange, setTotalPerChange] = useState(0);
+    // this will be total percentage change of the stock portfolio
     const userDoc = firebase.default.firestore().collection("Users").doc(firebase.auth().currentUser.uid);
     const userCollection = firebase.default.firestore().collection('Users').doc(firebase.auth().currentUser.uid).collection('Transactions');
     const stockCollection = firebase.default.firestore().collection("Users").doc(firebase.auth().currentUser.uid).collection("Stocks")
     var today = new Date();
     var date = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
+    // insert new
     const data1 = [
     
         {x: "Apple", y: 100},
@@ -35,6 +40,8 @@ export default function Stocks({navigation}) {
     const stockData = [
       {x: "Name", y: "price"},
     ];
+
+
     // check if ticker exist\
     const [Price, setPrice] = useState(0);
     const [NumShares, setNumShares] = useState(0);
@@ -238,6 +245,7 @@ export default function Stocks({navigation}) {
 
     // build array for the all the ticker to do the api call later
     const [stockList, setStockList] = useState([]);
+    var pieChartArray = [];
 
     
     useEffect(() => {
@@ -258,7 +266,8 @@ export default function Stocks({navigation}) {
             getCurrentPrice(documentSnapshot.id).then((result) => {
               stockData.push({x: documentSnapshot.data().Name, y: result * documentSnapshot.data().Shares})
               stocks.push({
-              ...documentSnapshot.data(), // provides the old price and old num Shares
+              ...documentSnapshot.data(), 
+              // provides the old price and old num Shares
               // added this to see if can get name out
               name: documentSnapshot.data().Name,
               key: documentSnapshot.id,
@@ -266,12 +275,23 @@ export default function Stocks({navigation}) {
               currValue: result * documentSnapshot.data().Shares, 
               perChange: (((result - documentSnapshot.data().Price) / documentSnapshot.data().Price) * 100).toFixed(2)
             })
-
+            
             stockValue = stockValue + stocks[stocks.length - 1].currValue
+            // updates totalStock value in field 
             setTotalValue(stockValue);
          
             })
+            // stockList will have the full list of stock which will be passed into the flatlist,
+            // need to use this same stock list as our pie chart right
+            // using name and currValue
+            // update it after stockList has been updated
+            //pieChartArray =[];
+            // make the pieChartArray empty everytime we update? else will keep pushing new duplicate values inside
+            // not sure it need this but LOL
             setStockList(stocks);
+            //setTotalValue(stockValue);
+            // updateTotalStockValue();
+            //console.log("Stock list is:"  + stockList)
             setLoading(false)
 
           });
@@ -283,12 +303,28 @@ export default function Stocks({navigation}) {
     
     const axios = require('axios');
     const params = {
-      access_key: '34c968023042747b40e1af689bf81751'
+      access_key: '01c3389e120c2749472cf5cc01a2391b'
+      // '34c968023042747b40e1af689bf81751'
        // access_key: '0'
     }
    
-
+  
+  
+  // updateTotalStockValue supposed to be outside of Useeffect
   updateTotalStockValue();
+  const updatePieChartArray = () => {
+    for ( let i = 0; i < stockList.length; i++ ) {
+
+      pieChartArray.push({
+        x: stockList[i].name,
+        y: stockList[i].currValue
+        
+      })
+    }
+
+  
+  }
+  updatePieChartArray();
 
    const [data, setData] = useState({
      ticker:'',
@@ -435,24 +471,37 @@ export default function Stocks({navigation}) {
    const [Px, setPx] = useState('')
    const [Num, setNum] = useState('')
 
+
    return (
     
      
       <View style={globalStyles.container}>
        {/*<Text style = {{color :'white'}}>{totalValue}</Text>*/}
         <View style={globalStyles.chartContainer}>
-
+          <Svg style= {globalStyles.pieChartContainer}>
           <VictoryPie 
             style={{
               labels: {
-                fill: 'white'
+                fill: 'white',
+                fontSize: 10,
+                
               }
+              
             }}
-            colorScale = {['#d5ddef','#4c394f','#616063']} 
+            colorScale = {[ '#AC8181','#CFCECA','#F8F8FF','#C9A959', '#253D5B', '#956ab3' ,'#6b0000', '#342141','#90f009', '#8bfdf1','#ff5dab','#118273', ]}
+            // {['#d5ddef','#4c394f','#616063']} 
             innerRadius= {wp('20%')}
             radius={wp('30%')}
-            data = {data1}  >
+            // data = {data1}  
+            
+            data = {pieChartArray}>
           </VictoryPie>
+          <VictoryLabel
+            textAnchor= "middle"
+            x = {wp('50%')} y ={hp('25%')}
+            style= {{ color: 'white', fill: 'white', fontSize: 20 }}
+          text= {totalValue.toFixed(2)}/>
+          </Svg>  
       </View>
       
       
