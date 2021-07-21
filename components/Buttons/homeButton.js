@@ -1,7 +1,7 @@
 import React from 'react';
 import { StyleSheet, TouchableOpacity, Text, View, Dimensions, FlatList, Image } from 'react-native';
 import {widthPercentageToDP as wp, heightPercentageToDP as hp} from 'react-native-responsive-screen';
-import { images } from '../../globalStyles/images';
+
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 // button for Auth page only, buttons inside will be different
 // for each text, different image? 
