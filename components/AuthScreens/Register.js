@@ -6,6 +6,7 @@ import  { authStyles } from './Authstyle';
 import FlatButton from '../Buttons/button'
 import { globalStyles} from '../../globalStyles/globalStyles';
 import { StatusBar } from 'expo-status-bar';
+import { FloatingLabelInput } from 'react-native-floating-label-input';
 
 export default function Register({ navigation }) {
   const [name, setName] = useState('');
@@ -27,7 +28,8 @@ function storeMoney() {
      TotalStockValue,
      Debt,
      // test debt 
-   }).then(() => {
+   })
+   /*.then(() => {
      firebase.firestore().collection('Users').doc(firebase.auth().currentUser.uid)
      .collection('Transactions')
      .add({
@@ -36,7 +38,7 @@ function storeMoney() {
        TransType: "Deposit"
        
      })
-   })
+   })*/
  }
 
 function onSignUp() {
@@ -72,11 +74,95 @@ function loginFailedAlert(args) {
 
   return (
     <View style={globalStyles.authContainer}>
-               <TextInput style={globalStyles.input}
+                <FloatingLabelInput 
+                label="Name"
+                value={name}
+
+                onChangeText= {setName}
+                containerStyles={{
+                  backgroundColor: 'white',
+        // borderWidth: 1,
+                  alignSelf: 'center',
+                  justifyContent: 'center',
+                  borderColor: '#a6a6a6',
+                  borderWidth: 1,
+                  margin: 5,
+                  padding: 10,
+                  borderRadius: 6,
+                  paddingLeft: 3,
+                  
+                }}
+                customLabelStyles={{
+                  fontSizeBlurred: 16,
+                  fontSizeFocused: 12,
+                }}
+                inputStyles={{
+                  fontSize: 18,
+                  color: 'black',
+                  paddingLeft: 5,
+                }}
+              />
+               
+               <FloatingLabelInput 
+                label="Email Address"
+                value={email}
+
+                onChangeText= {setEmail}
+                containerStyles={{
+                  backgroundColor: 'white',
+        // borderWidth: 1,
+                  alignSelf: 'center',
+                  justifyContent: 'center',
+                  borderColor: '#a6a6a6',
+                  borderWidth: 1,
+                  margin: 5,
+                  padding: 10,
+                  borderRadius: 6,
+                  paddingLeft: 3,
+                  
+                }}
+                customLabelStyles={{
+                  fontSizeBlurred: 16,
+                  fontSizeFocused: 12,
+                }}
+                inputStyles={{
+                  fontSize: 18,
+                  color: 'black',
+                  paddingLeft: 5,
+                }}
+              />
+              <FloatingLabelInput 
+                label="Password"
+                value={password}
+                isPassword
+                onChangeText= {setPassword}
+                containerStyles={{
+                  backgroundColor: 'white',
+        // borderWidth: 1,
+                  alignSelf: 'center',
+                  justifyContent: 'center',
+                  borderColor: '#a6a6a6',
+                  borderWidth: 1,
+                  margin: 5,
+                  padding: 10,
+                  borderRadius: 6,
+                  paddingLeft: 3,
+                }}
+                customLabelStyles={{
+                  fontSizeBlurred: 16,
+                  fontSizeFocused: 12,
+                }}
+                inputStyles={{
+                  fontSize: 18,
+                  color: 'black',
+                  paddingLeft: 5,
+                }}
+              />
+               {/*<TextInput style={globalStyles.input}
                   // placeholderTextColor= 'black'
                   placeholder = "name"
                   onChangeText = {setName}
-               /> 
+              /> 
                <TextInput  style={globalStyles.input}
                   // placeholderTextColor= 'black'
                   placeholder = "email"
@@ -87,7 +173,7 @@ function loginFailedAlert(args) {
                   placeholder = "password"
                   secureTextEntry={true}
                   onChangeText = {setPassword}
-               /> 
+               /> */}
                <FlatButton
                  
                  onPress = {() => {onSignUp()}}
@@ -100,65 +186,5 @@ function loginFailedAlert(args) {
   )
 }
 
-
-/*export class Register extends Component {
-    constructor(props){
-        super(props);
-        
-        this.state = {
-           email: '',
-           password: '',
-           name: '',
-        }
-
-       this.onSignUp = this.onSignUp.bind(this) 
-    }
-   
-
-   
-    onSignUp() {
-      const { email, password, name } = this.state;
-      firebase.default.auth().createUserWithEmailAndPassword(email, password)
-      .then((result) => {
-        firebase.firestore().collection("Users")
-        .doc(firebase.auth().currentUser.uid)
-        .set({
-            name,
-            email
-        }) 
-        console.log(result)
-      })
-      .catch((error) => {
-          console.log(error)
-      })
-    }
-    
-    render() {
-        return (
-            <View>
-               <TextInput
-                  placeholder = "name"
-                  onChangeText = {(name) => this.setState({name})}
-               /> 
-               <TextInput
-                  placeholder = "email"
-                  onChangeText = {(email) => this.setState({email})}
-               /> 
-               <TextInput
-                  placeholder = "password"
-                  secureTextEntry={true}
-                  onChangeText = {(password) => this.setState({password})}
-               /> 
-               <Button
-                 onPress = {() => navigation.navigate('RegisterTwo'), {name, email, password}}
-                 title = "Next"
-               />
-            </View>
-        )
-    }
-}
-
-export default Register
-*/
 
 
