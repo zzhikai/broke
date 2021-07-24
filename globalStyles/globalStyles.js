@@ -52,6 +52,20 @@ export const globalStyles = StyleSheet.create({
         // borderBottomColor: 'green',
 
     },
+    cashContainer: {
+        flex: 1,
+        //flexWrap: 'wrap',
+        // position:'relative',
+        alignItems: 'center',
+        justifyContent:'center',
+        paddingTop: hp('5%'),
+       
+        // using hp instead bc hp uses the available space instead of the entire screen
+        //height: hp('60%'),
+        borderColor: 'white',
+        // borderBottomColor: 'green',
+
+    },
 
     pieChartContainer: {
         alignItems: 'center',
