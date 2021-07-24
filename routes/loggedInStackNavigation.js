@@ -18,7 +18,9 @@ export default function loggedInStackNavigator() {
         <loggedInStack.Screen name = "Stocks" component ={StockScreen} options = {{headerTransparent: true,
             headerTintColor: 'white',
             headerShown: true}}/> 
-        <loggedInStack.Screen name = "Debt" component ={DebtScreen} options = {{headerShown: false}}/>
+        <loggedInStack.Screen name = "Debt" component ={DebtScreen} options = {{headerTransparent: true,
+            headerTintColor: 'white',
+            headerShown: true}}/>
         <loggedInStack.Screen name = "Cash" component ={CashScreen} options = {{headerTransparent: true,
             headerTintColor: 'white',
             headerShown: true}}/> 
