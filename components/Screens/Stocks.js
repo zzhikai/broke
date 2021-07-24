@@ -271,6 +271,8 @@ export default function Stocks({navigation}) {
               ...documentSnapshot.data(), 
               // provides the old price and old num Shares
               // added this to see if can get name out
+              ticker: documentSnapshot.id,
+              // trying out using the ticker symbol
               name: documentSnapshot.data().Name,
               key: documentSnapshot.id,
               currPrice: result,
@@ -320,7 +322,8 @@ export default function Stocks({navigation}) {
     for ( let i = 0; i < stockList.length; i++ ) {
 
       pieChartArray.push({
-        x: stockList[i].name,
+        // x: stockList[i].name,
+        x: stockList[i].ticker,
         y: stockList[i].currValue
         
       })
@@ -490,7 +493,7 @@ export default function Stocks({navigation}) {
             style={{
               labels: {
                 fill: 'white',
-                fontSize: 10,
+                fontSize: 12,
                 
               }
               
@@ -507,7 +510,7 @@ export default function Stocks({navigation}) {
             textAnchor= "middle"
             x = {wp('50%')} y ={hp('25%')}
             style= {[{ color: 'white', fill: (totalValue - totalSpent) > 0 ? '#03C04A' : 'red', fontSize: 20 }]}
-          text= { ((totalValue - totalSpent) / totalSpent * 100).toFixed(2) + '%' +  arrowSymbol((totalValue - totalSpent))}/>
+          text= { arrowSymbol((totalValue - totalSpent)) + ((totalValue - totalSpent) / totalSpent * 100).toFixed(2) + '%' }/>
           </Svg>  
       </View>
       

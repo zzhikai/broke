@@ -73,7 +73,7 @@ export default function Home({ navigation }) {
           fill: 'white'
         }
       }}
-      colorScale = {['#7C8577','#FFF8DC', '#cde6c7']} 
+      colorScale = {['#8A949B','#FAFAFA']} 
       // innerRadius = {90} 
       // radius={145}
       innerRadius= {wp('20%')}
