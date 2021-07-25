@@ -133,7 +133,7 @@ export default function Debt() {
         <View style={globalStyles.container}>
             
             <View style={globalStyles.cashContainer}>
-                <Text style={{fontSize: 30, color: '#ddd'}}> Current Balance: {Debt}</Text>
+                <Text style={{fontSize: 30, color: '#ddd'}}> Current Debt: {Debt}</Text>
             </View>
             
         

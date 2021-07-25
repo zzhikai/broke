@@ -21,7 +21,6 @@ export default function Stocks({navigation}) {
     // this is total stock value
     const [totalValue, setTotalValue] = useState(0);
     // totalValue does not reset, hence will keep using previous value whenever we update
-    const [totalPerChange, setTotalPerChange] = useState(0);
     // this will be total percentage change of the stock portfolio
     const [totalSpent, setTotalSpent] = useState(0);
     const userDoc = firebase.default.firestore().collection("Users").doc(firebase.auth().currentUser.uid);
@@ -30,13 +29,7 @@ export default function Stocks({navigation}) {
     var today = new Date();
     var date = today.getDate() + '/' + (today.getMonth() + 1) + '/' + today.getFullYear();
     // insert new
-    const data1 = [
-    
-        {x: "Apple", y: 100},
-        {x: "Tesla", y: 200},
-        {x: "Nike", y: 300},
-        /*{x: "Left to Go", y: Goal - CashSavings - StockValue}*/
-      ];
+   
 
     const stockData = [
       {x: "Name", y: "price"},
@@ -510,7 +503,7 @@ export default function Stocks({navigation}) {
             textAnchor= "middle"
             x = {wp('50%')} y ={hp('25%')}
             style= {[{ color: 'white', fill: (totalValue - totalSpent) > 0 ? '#03C04A' : 'red', fontSize: 20 }]}
-          text= { arrowSymbol((totalValue - totalSpent)) + ((totalValue - totalSpent) / totalSpent * 100).toFixed(2) + '%' }/>
+            text= { arrowSymbol((totalValue - totalSpent)) + ((totalValue - totalSpent) / totalSpent * 100).toFixed(2) + '%' }/>
           </Svg>  
       </View>
       
