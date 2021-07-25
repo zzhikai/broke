@@ -32,8 +32,8 @@ export default function Home({ navigation }) {
   })
   // this is for the piechart for breakdown of assets
   const data = [
-    {x: "Cash", y: CashSavings},
-    {x: "Stock", y: StockValue},
+    {x: "Cash" + ' - ' + ((CashSavings/(CashSavings+StockValue))*100).toFixed(2) + '%', y: CashSavings},
+    {x: "Stock" + ' - ' + ((StockValue/(CashSavings+StockValue))*100).toFixed(2) + '%', y: StockValue},
    // {x: "Left to Go", y: Goal - CashSavings - StockValue}
   ];
   function setGoalsAlert() {
