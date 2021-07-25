@@ -316,7 +316,7 @@ export default function Stocks({navigation}) {
 
       pieChartArray.push({
         // x: stockList[i].name,
-        x: stockList[i].ticker,
+        x: stockList[i].ticker + ' - ' + ((stockList[i].currValue / totalValue) * 100).toFixed(2) + '%',
         y: stockList[i].currValue
         
       })

@@ -12,7 +12,6 @@ import {StatusBar} from 'expo-status-bar';
 export default function Home({ navigation }) {
     
   const userDoc = firebase.default.firestore().collection("Users").doc(firebase.auth().currentUser.uid);
-  const finDoc = firebase.default.firestore().collection("Cash&Goals").doc(firebase.auth().currentUser.uid);  
   
   const [name, setName] = useState('');
   const [CashSavings, setCashSavings] = useState(0);
