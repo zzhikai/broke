@@ -166,14 +166,14 @@ export default function Debt() {
                         </View> : null}
 
                         
-                        <PlusButton
+                        <MinusButton
                             // change data.cash into cash setCash, once completely backspace still got no residual value to add
                             onPress = {() =>  (makeTransactionHandle(Cash, 'Deposit'))}
                             text = "Add Debt"
                             
                         />
 
-                        <MinusButton
+                        <PlusButton
                             onPress = {() => makeTransactionHandle(Cash, 'Withdrawal')}
                             text = "Clear Debt" 
                         />
