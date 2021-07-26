@@ -475,7 +475,136 @@ export default function Stocks({navigation}) {
        ? styles.positive
        : styles.negative)
 
-   return (
+   
+   if(isNaN(((totalValue - totalSpent) / totalSpent * 100))) {
+   
+    return (
+    
+     
+      <View style={globalStyles.container}>
+       {/*<Text style = {{color :'white'}}>{totalValue}</Text>*/}
+        <View style={globalStyles.chartContainer}>
+          <Svg style= {globalStyles.pieChartContainer}>
+          <VictoryPie 
+            style={{
+              labels: {
+                fill: 'white',
+                fontSize: 12,
+                
+              }
+              
+            }}
+            colorScale = {[ '#AC8181','#CFCECA','#F8F8FF','#C9A959', '#253D5B', '#956ab3' ,'#6b0000', '#342141','#90f009', '#8bfdf1','#ff5dab','#118273', ]}
+            // {['#d5ddef','#4c394f','#616063']} 
+            innerRadius= {wp('20%')}
+            radius={wp('30%')}
+            // data = {data1}  
+            
+            data = {pieChartArray}>
+          </VictoryPie>
+          <VictoryLabel
+            textAnchor= "middle"
+            x = {wp('50%')} y ={hp('25%')}
+            style= {[{ color: 'white', fill: (totalValue - totalSpent) > 0 ? '#03C04A' : 'red', fontSize: 20 }]}
+            text= {"No Data Available"}/>
+          </Svg>  
+      </View>
+      
+      
+        <FlatList
+            data={stockList}
+            renderItem={({ item }) => ( 
+
+              <StockButton ticker = {item.key} num = {item.Shares} pricePaid ={item.Price} currPrice= {item.currPrice} stockName={item.name} percentage ={item.perChange} />
+
+          )}
+          
+        />
+        
+        <StatusBar style = 'light'/>
+      
+        <Modal 
+          animationType = "slide"
+          visible = {modalVisible}
+          style = {globalStyles}
+          onRequestClose = {() => (setModalVisible(false), resetData())}>
+          
+          <View style = {globalStyles.container}>
+              <TextInput style={globalStyles.input}
+                  autoCapitalize = 'characters'
+                  placeholder = "Ticker Symbol"
+                  value = {Symbol}
+                  onChangeText = {(val) => (textInputChange(val), setSymbol(val))}
+                    // , setTicker(val))}
+                  // onBlur = {(val) =>textInputChange(val)}
+                  
+                  />      
+             {!data.isValidTextInput ? 
+                <View> 
+                  <Text style={{color: 'red', alignSelf:'center'}}>Please enter your ticker</Text>
+                </View> : null}
+              <TextInput style={globalStyles.input}
+                  placeholder = "Enter Price"
+                  onChangeText = {(val) => (priceInputChange(val), setPx(val))}
+                  value = {Px}
+                    // setPrice((parseFloat(val))))}
+                  keyboardType = 'numeric'   /> 
+              {!data.isValidPriceInput ? 
+                <View> 
+                  <Text style={{color: 'red', alignSelf:'center'}}>Please enter valid price</Text>
+                </View> : null}
+
+              <TextInput style={globalStyles.input}
+                  placeholder = "Number of Shares"
+                  // change made here, use numberINputChange to set State instead
+                  value = {Num}
+                  onChangeText = {(val) => (numberInputChange(val), setNum(val))}
+                    // ,setNumShares((parseFloat(val))))}
+                  // onBlur = {(val) => numberInputChange(val)}
+                  keyboardType = 'numeric'   /> 
+              {!data.isValidNumberInput ? 
+                <View> 
+                  <Text style={{color: 'red', alignSelf:'center'}}>Please enter valid number</Text>
+                </View> : null}
+              
+              
+              <PlusButton
+                  // Buy
+                  onPress =  {() => makeTransactionHandle(Symbol, Px, Num, 'Buy') }
+                  // the below version will allow to input and remove number transaction to cross bc data has the input 
+                  // and did not remove the last output
+                  // onPress =  {() => makeTransactionHandle(data.ticker, data.price, data.number, 'Buy') }
+                  // {() => updateStockHolding(Ticker) }
+                  text = "Buy"  />
+
+              <MinusButton
+                  // Sell
+                  onPress = {() => makeTransactionHandle(Symbol, Px, Num,'Sell') }
+                  // {() => removeStockHolding(Ticker) }
+                  text = "Sell"  />
+
+          </View>
+        </Modal>
+        <FlatButton
+                 onPress = {() => setModalVisible(!modalVisible)}
+                 // {() => navigation.navigate('TestFeature')} 
+                 
+                 // {() => navigation.navigate('StockTransaction')} 
+                 text= "Make Transaction"
+            />
+
+      
+
+
+
+    </View>
+
+  )
+
+   }
+
+
+    return (
     
      
       <View style={globalStyles.container}>
