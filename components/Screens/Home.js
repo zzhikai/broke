@@ -59,7 +59,91 @@ export default function Home({ navigation }) {
   // setTimeout(() => checkGoal(), 3000)
   // checkGoal();
   // temporary fix to setGoals
+  
+  if(isNaN((((CashSavings+StockValue - DebtValue)/Goal) * 100))){
+  
     return (
+      
+      <View style={globalStyles.container}>
+       <Text style = {globalStyles.welcomeMessage}> Hello {name}!</Text>
+       <Text style = {globalStyles.subMessage}>Welcome to Broke!</Text>
+        <View style={globalStyles.chartContainer}>
+        
+      <VictoryPie 
+        style={{
+          labels: {
+            fill: 'white'
+          }
+        }}
+        colorScale = {['#8A949B','#FAFAFA']} 
+        // innerRadius = {90} 
+        // radius={145}
+        innerRadius= {wp('20%')}
+        radius={wp('30%')}
+        data = {[{x: "No Data", y: 100}, ]}  >
+  
+      </VictoryPie>
+        </View>
+        
+        <FlatList
+              data={button_data}
+              renderItem={({ item }) => ( 
+                // error inside item.val.tofixed(2) bc when first open stock amount is null, no number attached to it 
+                // resulting in type error
+                // Cash, Stocks, Debt buttons here
+                <HomeButton text = {item.name} onPress = {() => navigation.navigate(item.name)} num = {item.val.toFixed(2)} />
+  
+            )}
+            
+          />
+  
+       <StatusBar style = 'light'/>
+      </View>
+      )
+
+
+  } if (StockValue == 0 && CashSavings == 0) {
+   
+    return (
+      
+      <View style={globalStyles.container}>
+       <Text style = {globalStyles.welcomeMessage}> Hello {name}!</Text>
+       <Text style = {globalStyles.subMessage}> You've reached {(((CashSavings+StockValue - DebtValue)/Goal) * 100).toFixed(2)}% of your goal</Text>
+        <View style={globalStyles.chartContainer}>
+        
+      <VictoryPie 
+        style={{
+          labels: {
+            fill: 'white'
+          }
+        }}
+        colorScale = {['#8A949B','#FAFAFA']} 
+        // innerRadius = {90} 
+        // radius={145}
+        innerRadius= {wp('20%')}
+        radius={wp('30%')}
+        data = {[{x : "No Data", y : 100}]}  >
+  
+      </VictoryPie>
+        </View>
+        
+        <FlatList
+              data={button_data}
+              renderItem={({ item }) => ( 
+                
+                <HomeButton text = {item.name} onPress = {() => navigation.navigate(item.name)} num = {item.val.toFixed(2)} />
+  
+            )}
+            
+          />
+  
+       <StatusBar style = 'light'/>
+      </View>
+      )
+
+  } else {
+  
+  return (
       
     <View style={globalStyles.container}>
      <Text style = {globalStyles.welcomeMessage}> Hello {name}!</Text>
@@ -97,6 +181,7 @@ export default function Home({ navigation }) {
      <StatusBar style = 'light'/>
     </View>
     )
+}
 }
 
 
