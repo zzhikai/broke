@@ -2,6 +2,7 @@
 
 ### Proposed Level of Achievement: Apollo 11
 
+[Video Demo](https://www.youtube.com/watch?v=D4xPmKJyJAE)
 [Documentation](https://docs.google.com/document/d/1tHPqNMGjpsd1dc5bOarToXAR-zNM9c66hQKB8Dey-Lc/edit?usp=sharing)
 
 #### Motivation
